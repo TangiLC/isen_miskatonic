@@ -1,11 +1,20 @@
-# docker-compose.yml
+version: "3.9"
+
 services:
   mongo:
     image: mongo:7
+    container_name: miska_mongo
+    restart: always
     ports:
       - "27018:27017"
+    
     volumes:
       - mongo_data:/data/db
+    networks:
+      - miskatonic
 
 volumes:
   mongo_data:
+
+networks:
+  miskatonic:
