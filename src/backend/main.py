@@ -7,7 +7,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 from routers import questions
-from database import database
+from utils.database import database
 
 
 class QuizAPI:

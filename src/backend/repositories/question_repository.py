@@ -2,7 +2,7 @@ import asyncio
 
 import concurrent
 from models.question import Question
-from database import database
+from utils.database import database
 from bson import ObjectId
 from typing import List, Optional
 

@@ -91,6 +91,7 @@ async def create_question(question_data: QuestionCreate) -> QuestionResponse:
         )
 
 
+################################################################################
 @router.get(
     "/api/question/{id}",
     response_model=QuestionResponse,
@@ -101,6 +102,7 @@ async def create_question(question_data: QuestionCreate) -> QuestionResponse:
         200: {"description": "Question trouvée", "model": QuestionResponse},
         400: {"description": "ID invalide"},
         404: {"description": "Question introuvable"},
+        418: {"description": "Question bouillante"},
         500: {"description": "Erreur interne"},
     },
     tags=["Questions"],
