@@ -18,7 +18,7 @@ class QuestionCreate(BaseModel):
     responseC: Optional[str] = Field(None, description="Réponse C")
     responseD: Optional[str] = Field(None, description="La Réponse D")
     remark: Optional[str] = Field(None, description="Remarque ou commentaire")
-    created_by: Optional[int] = Field(None, description="ID du créateur")
+    # created_by: Optional[int] = Field(None, description="ID du créateur")
 
 
 class QuestionResponse(BaseModel):
@@ -38,3 +38,23 @@ class QuestionResponse(BaseModel):
     remark: Optional[str] = None
     created_by: Optional[int] = None
     created_at: Optional[datetime] = None
+    edited_at: Optional[datetime] = None
+
+
+class QuestionUpdate(BaseModel):
+    """
+    Schema pour la mise à jour d'une question existante.
+    Tous les champs sont optionnels.
+    """
+
+    question: Optional[str] = Field(None, description="Intitulé de la question")
+    subject: Optional[str] = Field(None, description="Sujet de la question")
+    use: Optional[str] = Field(None, description="Contexte de la question")
+    correct: Optional[List[str]] = Field(
+        None, description="Liste des réponses correctes"
+    )
+    responseA: Optional[str] = Field(None, description="Réponse A")
+    responseB: Optional[str] = Field(None, description="Réponse B")
+    responseC: Optional[str] = Field(None, description="Réponse C")
+    responseD: Optional[str] = Field(None, description="Réponse D")
+    remark: Optional[str] = Field(None, description="Remarque ou commentaire")

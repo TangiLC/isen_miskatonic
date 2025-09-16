@@ -7,6 +7,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 from routers import questions
+from routers import auth
 from utils.database import database
 
 
@@ -158,6 +159,7 @@ class QuizAPI:
         Configure les routers de l'application.
         """
         app.include_router(questions.router, tags=["Questions"])
+        app.include_router(auth.router, tags=["Auth"])
 
     def run(self):
         """

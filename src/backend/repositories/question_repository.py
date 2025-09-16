@@ -4,7 +4,7 @@ import concurrent
 from models.question import Question
 from utils.database import database
 from bson import ObjectId
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class QuestionRepository:
@@ -22,6 +22,7 @@ class QuestionRepository:
         """
         return database.get_collection()
 
+    ################################################################################
     async def insert_question(self, question: Question) -> str:
         """
         Insère une question en base de données MongoDB (version async wrapper).
@@ -49,11 +50,14 @@ class QuestionRepository:
                     "remark": question.remark,
                     "created_by": question.created_by,
                     "created_at": question.created_at,
+                    "edited_at": question.edited_at,
                 }
 
-                cleaned_dict = {k: v for k, v in question_dict.items() if v is not None}
-
-                result = collection.insert_one(cleaned_dict)
+                # Dé-commenter pour ne pas enregistrer les champs null
+                # cleaned_dict = {k: v for k, v in question_dict.items() if v is not None}
+                # result = collection.insert_one(cleaned_dict)
+                # enregistre même les champs null
+                result = collection.insert_one(question_dict)
 
                 print(f"Question insérée avec l'ID: {result.inserted_id}")
                 return str(result.inserted_id)
@@ -95,6 +99,7 @@ class QuestionRepository:
                 remark=doc.get("remark"),
                 created_by=doc.get("created_by"),
                 created_at=doc.get("created_at"),
+                edited_at=doc.get("edited_at"),
             )
 
         loop = asyncio.get_event_loop()
@@ -121,4 +126,101 @@ class QuestionRepository:
         loop = asyncio.get_event_loop()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(executor, _sync_get_by_subject)
+            return result
+
+    ################################################################################
+    async def get_all_questions(self) -> List[Question]:
+        """
+        Récupère l'ensemble des questions stockées dans la collection.
+        """
+        collection = self._get_collection()
+
+        def _sync_get_all():
+            cursor = collection.find()  # pas de filtre
+            results: List[Question] = []
+            for doc in cursor:
+                results.append(
+                    Question(
+                        id=str(doc["_id"]),
+                        question=doc.get("question"),
+                        subject=doc.get("subject"),
+                        use=doc.get("use"),
+                        correct=doc.get("correct", []),
+                        responseA=doc.get("responseA"),
+                        responseB=doc.get("responseB"),
+                        responseC=doc.get("responseC"),
+                        responseD=doc.get("responseD"),
+                        remark=doc.get("remark"),
+                        created_by=doc.get("created_by"),
+                        created_at=doc.get("created_at"),
+                        edited_at=doc.get("edited_at"),
+                    )
+                )
+            return results
+
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return await loop.run_in_executor(executor, _sync_get_all)
+
+    ################################################################################
+    async def get_distinct_subjects(self) -> List[str]:
+        """
+        Retourne la liste distincte des sujets présents dans la collection.
+        """
+
+        def _sync_distinct():
+            collection = self._get_collection()
+            subjects = collection.distinct("subject")
+            subjects = [s for s in subjects if s]  # filtre None / ""
+            subjects.sort()
+            return subjects
+
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return await loop.run_in_executor(executor, _sync_distinct)
+
+    ###############################################################################
+    async def update_question(
+        self, question_id: str, update_data: Dict[str, Any]
+    ) -> bool:
+        """
+        Met à jour une question en base de données MongoDB.
+        Args:
+            question_id: ID de la question à modifier
+            update_data: Dictionnaire des champs à mettre à jour
+        Returns:
+            bool: True si la mise à jour a réussi
+        """
+
+        def _sync_update():
+            try:
+                collection = self._get_collection()
+                clean_id = question_id.strip().strip("\"'")
+
+                try:
+                    oid = ObjectId(clean_id)
+                except ValueError:
+                    raise ValueError("Identifiant MongoDB invalide")
+
+                # Dé-commenter pour ne pas enregistrer les champs null
+                # cleaned_data = {k: v for k, v in update_data.items() if v is not None}
+                # result = collection.update_one({"_id": oid}, {"$set": cleaned_data})
+                # enregistre même les champs null
+                result = collection.update_one({"_id": oid}, {"$set": update_data})
+
+                if result.matched_count == 0:
+                    raise LookupError("Question introuvable")
+
+                print(
+                    f"Question {question_id} mise à jour: {result.modified_count} champ(s) modifié(s)"
+                )
+                return result.modified_count > 0
+
+            except Exception as e:
+                print(f"Erreur lors de la mise à jour: {e}")
+                raise
+
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            result = await loop.run_in_executor(executor, _sync_update)
             return result
