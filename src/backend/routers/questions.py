@@ -1,12 +1,30 @@
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-from typing import Any, Dict, List, Optional
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Path,
+    Query,
+    UploadFile,
+    status,
+)
+from typing import Any, Dict, List
 
+from models.user import User, UserRole
+from services.csv_import_service import CSVImportService
 from utils.auth_dependencies import get_current_user
-from schemas.question import QuestionCreate, QuestionResponse, QuestionUpdate
+from schemas.question import (
+    AnswerCheckResponse,
+    CSVImportResponse,
+    QuestionCreate,
+    QuestionResponse,
+    QuestionUpdate,
+)
 from services.question_service import QuestionService
 
 router = APIRouter()
 question_service = QuestionService()
+csv_import_service = CSVImportService()
 
 
 @router.put(
@@ -14,7 +32,7 @@ question_service = QuestionService()
     response_model=QuestionResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Créer une nouvelle question",
-    description="Crée une nouvelle question à partir des données JSON fournies. Route Sécurisée JWT",
+    description="Crée une nouvelle question à partir des données JSON fournies. Route sécurisée JWT.",
     responses={
         201: {"description": "Question créée avec succès", "model": QuestionResponse},
         400: {"description": "Données invalides"},
@@ -28,24 +46,6 @@ async def create_question(
     question_data: QuestionCreate,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> QuestionResponse:
-    """
-    Créer une nouvelle question.
-
-    Récupère les données JSON depuis le body de la requête, instancie une nouvelle Question,
-    complète la date de création avec l'heure actuelle, puis l'insère en base de données MongoDB.
-    L'ID sera automatiquement généré par MongoDB.
-    Args:
-        question_data (QuestionCreate): Données de la question à créer
-        current_user : utilisateur authentifié JWT
-    Returns:
-        QuestionResponse: La question créée avec l'ID généré automatiquement
-    Raises:
-        HTTPException:
-            - 400 si les données sont invalides
-            - 401 erreur d'authentification
-            - 409 en cas d'erreur lors de l'insertion
-            - 500 en cas d'erreur interne
-    """
     try:
         user_id = current_user.get("uid")
         if not user_id:
@@ -56,22 +56,19 @@ async def create_question(
         if isinstance(user_id, str) and user_id.isdigit():
             user_id = int(user_id)
 
-        question = await question_service.create_question(question_data, user_id)
+        q = await question_service.create_question(question_data, user_id)
 
         return QuestionResponse(
-            id=question.id,
-            question=question.question,
-            subject=question.subject,
-            use=question.use,
-            correct=question.correct,
-            responseA=question.responseA,
-            responseB=question.responseB,
-            responseC=question.responseC,
-            responseD=question.responseD,
-            remark=question.remark,
-            created_by=question.created_by,
-            created_at=question.created_at,
-            edited_at=question.edited_at,
+            id=q.id,
+            question=q.question,
+            subject=q.subject,
+            use=q.use,
+            corrects=q.corrects,
+            responses=q.responses,
+            remark=q.remark,
+            created_by=q.created_by,
+            created_at=q.created_at,
+            edited_at=q.edited_at,
         )
 
     except ValueError as e:
@@ -86,37 +83,41 @@ async def create_question(
         )
 
 
-################################################################################
 @router.get(
     "/api/question/{id}",
     response_model=QuestionResponse,
     status_code=status.HTTP_200_OK,
     summary="Récupérer une question par ID",
-    description="Retourne la question correspondant à l'identifiant fourni en query string",
+    description="""Retourne la question correspondant à l'id.
+    Les réponses correctes ne sont visibles que pour les rôles définis. Route sécurisée JWT.""",
     responses={
         200: {"description": "Question trouvée", "model": QuestionResponse},
         400: {"description": "ID invalide"},
+        401: {"description": "Token d'authentification requis"},
         404: {"description": "Question introuvable"},
-        418: {"description": "Question bouillante"},
         500: {"description": "Erreur interne"},
     },
     tags=["Questions"],
 )
 async def get_question(
-    id: str = Path(..., description="Identifiant MongoDB de la question")
+    id: str = Path(..., description="Identifiant MongoDB de la question"),
+    current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> QuestionResponse:
     try:
+        user_role = (current_user.get("role") or "").upper()
         q = await question_service.get_question_by_id(id)
+
+        visible_corrects = []
+        if user_role in ["TEACHER", "ADMIN"]:
+            visible_corrects = q.corrects
+
         return QuestionResponse(
             id=q.id,
             question=q.question,
             subject=q.subject,
             use=q.use,
-            correct=q.correct or [],
-            responseA=q.responseA,
-            responseB=q.responseB,
-            responseC=q.responseC,
-            responseD=q.responseD,
+            corrects=visible_corrects,
+            responses=q.responses or [],
             remark=q.remark,
             created_by=q.created_by,
             created_at=q.created_at,
@@ -133,64 +134,53 @@ async def get_question(
         )
 
 
-################################################################################
 @router.get(
     "/api/questions",
     response_model=List[QuestionResponse],
     status_code=status.HTTP_200_OK,
     summary="Lister toutes les questions",
-    description=("Retourne une liste de l'ensemble des questions enregistrées. "),
+    description="""Retourne l'ensemble des questions stockées en base. 
+    Les réponses correctes ne sont visibles que pour les rôles définis. Route sécurisée JWT.""",
     responses={
-        200: {
-            "description": "Liste de questions renvoyée avec succès.",
-            "model": List[QuestionResponse],
-        },
-        500: {
-            "description": "Erreur interne du serveur",
-        },
+        200: {"description": "Liste renvoyée avec succès"},
+        401: {"description": "Token d'authentification requis"},
+        500: {"description": "Erreur interne du serveur"},
     },
     tags=["Questions"],
 )
-async def get_all_questions(
-    limit: Optional[int] = Query(
-        default=None,
-        description="Nombre maximum d'éléments à retourner (optionnel).",
-        example=100,
-    )
+async def get_questions(
+    current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> List[QuestionResponse]:
-    """
-    Récupère toutes les questions. Si `limit` est fourni, la taille du résultat peut être restreinte côté service/dépôt.
-    """
     try:
-        questions = await question_service.get_all_questions()
-        if limit is not None:
-            questions = questions[: max(limit, 0)]
-        return [
-            QuestionResponse(
-                id=q.id,
-                question=q.question,
-                subject=q.subject,
-                use=q.use,
-                correct=q.correct or [],
-                responseA=q.responseA,
-                responseB=q.responseB,
-                responseC=q.responseC,
-                responseD=q.responseD,
-                remark=q.remark,
-                created_by=q.created_by,
-                created_at=q.created_at,
-                edited_at=q.edited_at,
+        user_role = (current_user.get("role") or "").upper()
+        items = await question_service.get_all_questions()
+        results: List[QuestionResponse] = []
+        for q in items:
+            visible_corrects = []
+            if user_role in ["TEACHER", "ADMIN"]:
+                visible_corrects = q.corrects
+            results.append(
+                QuestionResponse(
+                    id=q.id,
+                    question=q.question,
+                    subject=q.subject,
+                    use=q.use,
+                    corrects=visible_corrects,
+                    responses=q.responses or [],
+                    remark=q.remark,
+                    created_by=q.created_by,
+                    created_at=q.created_at,
+                    edited_at=q.edited_at,
+                )
             )
-            for q in questions
-        ]
+        return results
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erreur lors de la récupération de toutes les questions: {e}",
+            detail=f"Erreur lors de la récupération des questions: {e}",
         )
 
 
-################################################################################
 @router.get(
     "/api/subjects",
     response_model=List[str],
@@ -198,20 +188,12 @@ async def get_all_questions(
     summary="Lister les sujets",
     description="Retourne la liste distincte des sujets présents dans les questions.",
     responses={
-        200: {
-            "description": "Liste des sujets renvoyée avec succès.",
-            "model": List[str],
-        },
-        500: {
-            "description": "Erreur interne du serveur",
-        },
+        200: {"description": "Liste des sujets renvoyée avec succès."},
+        500: {"description": "Erreur interne du serveur"},
     },
     tags=["Questions"],
 )
 async def get_subjects() -> List[str]:
-    """
-    Récupère la liste distincte des `subject`.
-    """
     try:
         return await question_service.get_subjects()
     except Exception as e:
@@ -221,7 +203,6 @@ async def get_subjects() -> List[str]:
         )
 
 
-################################################################################
 @router.patch(
     "/api/question/{id}",
     response_model=QuestionResponse,
@@ -246,44 +227,29 @@ async def update_question(
     question_data: QuestionUpdate = ...,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> QuestionResponse:
-    """
-    Met à jour une question existante.
-
-    Authentification JWT requise. Seul l'utilisateur qui a créé la question peut la modifier.
-    L'ID utilisateur est extrait du token JWT et comparé avec le champ created_by de la question.
-    """
     try:
-        # Extraire l'ID utilisateur du token JWT
         user_id = current_user.get("uid")
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Token JWT invalide - ID utilisateur manquant",
             )
-
-        # Convertir en int si nécessaire
         if isinstance(user_id, str) and user_id.isdigit():
             user_id = int(user_id)
 
-        # Mettre à jour la question
-        updated_question = await question_service.update_question(
-            id, question_data, user_id
-        )
+        updated = await question_service.update_question(id, question_data, user_id)
 
         return QuestionResponse(
-            id=updated_question.id,
-            question=updated_question.question,
-            subject=updated_question.subject,
-            use=updated_question.use,
-            correct=updated_question.correct,
-            responseA=updated_question.responseA,
-            responseB=updated_question.responseB,
-            responseC=updated_question.responseC,
-            responseD=updated_question.responseD,
-            remark=updated_question.remark,
-            created_by=updated_question.created_by,
-            created_at=updated_question.created_at,
-            edited_at=updated_question.edited_at,
+            id=updated.id,
+            question=updated.question,
+            subject=updated.subject,
+            use=updated.use,
+            corrects=updated.corrects,
+            responses=updated.responses,
+            remark=updated.remark,
+            created_by=updated.created_by,
+            created_at=updated.created_at,
+            edited_at=updated.edited_at,
         )
 
     except ValueError as e:
@@ -296,4 +262,71 @@ async def update_question(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la mise à jour: {str(e)}",
+        )
+
+
+@router.put(
+    "/api/question/import-csv",
+    response_model=CSVImportResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Importer des questions depuis un fichier CSV",
+    description="""
+    Importe des questions en masse depuis un fichier CSV.
+    Le CSV doit contenir les colonnes: question, subject, use, correct, responseA, responseB, responseC, responseD, remark.
+    Fusionne automatiquement les questions identiques et corrige les sujets similaires.
+    Route sécurisée JWT - seuls TEACHER et ADMIN peuvent importer.
+    """,
+    responses={
+        201: {"description": "Import réussi", "model": CSVImportResponse},
+        400: {"description": "Fichier CSV invalide ou données incorrectes"},
+        401: {"description": "Token d'authentification requis"},
+        403: {"description": "Accès refusé - rôle insuffisant"},
+        413: {"description": "Fichier trop volumineux"},
+        500: {"description": "Erreur interne du serveur"},
+    },
+    tags=["Questions"],
+)
+async def import_csv(
+    file: UploadFile = File(..., description="Fichier CSV à importer (max 10MB)"),
+    fix_subjects: bool = True,
+    subject_threshold: float = 0.90,
+    current_user: User = Depends(get_current_user),
+) -> CSVImportResponse:
+    """Importe des questions depuis un fichier CSV"""
+    try:
+        # Vérification des permissions - Accès direct aux propriétés de l'objet User
+        if current_user.role not in [UserRole.TEACHER, UserRole.ADMIN]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Seuls les enseignants et administrateurs peuvent importer des questions",
+            )
+
+        # Récupération de l'ID utilisateur
+        if not current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token JWT invalide - ID utilisateur manquant",
+            )
+
+        user_id = current_user.id
+        # Conversion en int si nécessaire
+        if isinstance(user_id, str) and user_id.isdigit():
+            user_id = int(user_id)
+
+        # Import via le service
+        return await csv_import_service.import_questions_from_csv(
+            file=file,
+            user_id=user_id,
+            fix_subjects=fix_subjects,
+            subject_threshold=subject_threshold,
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'import CSV: {str(e)}",
         )

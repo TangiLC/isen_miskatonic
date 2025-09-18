@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from models.user import User
+from utils.auth_dependencies import get_current_user, hide_email
 from schemas.user import UserCreate, TokenResponse
 from services.auth_service import AuthService
 
@@ -13,29 +15,9 @@ auth_service = AuthService()
     summary="Générer un JWT de test  /!\ Mode Dev Test uniquement /!\ ",
     description="Génère un token JWT sans accès BDD, à partir d'un body JSON {id, name, email, role}.",
     responses={
-        200: {
-            "description": "Succès authentification, retour token JWT.",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-                        "token_type": "bearer",
-                        "user": {
-                            "id": "123e4567-e89b-12d3-a456-426614174000",
-                            "name": "John Doe",
-                            "email": "john@example.com",
-                            "role": "user",
-                        },
-                    }
-                }
-            },
-        },
-        422: {
-            "description": "Erreur de validation des données",
-        },
-        500: {
-            "description": "Erreur interne du serveur",
-        },
+        200: {"description": "Succès authentification, retour token JWT."},
+        422: {"description": "Erreur de validation des données"},
+        500: {"description": "Erreur interne du serveur"},
     },
     tags=["Auth"],
 )
@@ -55,32 +37,21 @@ async def create_test_jwt(payload: UserCreate) -> TokenResponse:
 
 # Endpoint bonus pour vérifier un token
 @router.get(
-    "/auth/verify/",
-    summary="Vérifier un token JWT",
-    description="Vérifie la validité d'un token JWT et retourne les informations utilisateur.",
+    "/auth/whoami/",
+    summary="Vérifier du user depuis son token JWT",
+    description="Vérifie la validité du JWT (Authorization: Bearer) et retourne les informations utilisateur.",
     responses={
-        200: {"description": "Token valide"},
-        401: {"description": "Token invalide ou expiré"},
+        200: {"description": "Token valide", "model": User},
+        401: {"description": "Token invalide, expiré ou manquant"},
     },
     tags=["Auth"],
 )
-async def verify_jwt_token(token: str):
+async def whoami(current_user: User = Depends(get_current_user)):
     """
-    Vérifie la validité d'un token JWT.
+    Retourne les informations de l'utilisateur courant si le JWT est valide.
     """
-    from utils.security import verify_token
+    who_am_i = current_user.model_dump()
+    who_am_i["email"] = hide_email(current_user.email)
+    who_am_i["password"] = "*****"
 
-    payload = verify_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalide ou expiré"
-        )
-
-    return {
-        "valid": True,
-        "user_id": payload.get("uid"),
-        "email": payload.get("email"),
-        "name": payload.get("name"),
-        "role": payload.get("role"),
-        "expires_at": payload.get("exp"),
-    }
+    return who_am_i

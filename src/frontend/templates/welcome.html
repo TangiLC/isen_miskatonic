@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Bienvenue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    {% if user.isAuth %}
+    <h1>Bienvenue {{ user.login }} !</h1>
+    <p>Connexion réussie. (id={{ user.id }})</p>
+    {% else %}
+    <h1>Vous n'avez pas les droits.</h1>
+    <p>Login ou mot de passe incorrect.</p>
+    {% endif %}
+</body>
+
+</html>

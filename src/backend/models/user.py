@@ -9,6 +9,7 @@ class UserRole(str, Enum):
     ADMIN = "admin"
     TEACHER = "teacher"
     STUDENT = "student"
+    USER = "user"
 
 
 class User(BaseModel):
@@ -22,3 +23,4 @@ class User(BaseModel):
     email: EmailStr
     role: UserRole = UserRole.TEACHER
     password: Optional[str] = None
+    isAuth: Optional[bool] = False
