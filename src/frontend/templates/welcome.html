@@ -15,7 +15,7 @@
 
 <body>
     {% if user.isAuth %}
-    <h1>Bienvenue {{ user.login }} !</h1>
+    <h1>Bienvenue {{ user.name }} !</h1>
     <p>Connexion réussie. (id={{ user.id }})</p>
     {% else %}
     <h1>Vous n'avez pas les droits.</h1>

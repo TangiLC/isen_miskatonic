@@ -3,43 +3,59 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Connexion</title>
+    <title>{% if showLoginForm %}Connexion{% else %}Création de compte{% endif %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            margin: 2rem;
-        }
-
-        form {
-            max-width: 360px;
-            display: grid;
-            gap: .75rem;
-        }
-
-        input,
-        button {
-            padding: .6rem .8rem;
-            font-size: 1rem;
-        }
-
-        button {
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 
 <body>
-    <h1>Authentification</h1>
-    <form method="post" action="{{ url_for('authentifier')}}">
-        <label>Login
-            <input type="text" name="login" required>
-        </label>
-        <label>Mot de passe
-            <input type="password" name="mdp" required>
-        </label>
-        <button type="submit">Se connecter</button>
-    </form>
+    <card class="center-card">
+        <h1>{% if showLoginForm %}Authentification{% else %}Création de compte{% endif %}</h1>
+
+
+        {% if showLoginForm %}
+
+        <form method="post" action="{{ url_for('authentifier') }}">
+            <label><span class="label-name">Login</span>
+                <input type="text" name="name" required>
+            </label>
+            <label><span class="label-name">Mot de passe</span>
+                <input type="password" name="password" required>
+            </label>
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <p>
+            <a href="{{ url_for('register') }}">Créer un compte</a>
+        </p>
+
+        {% else %}
+
+        <form method="post" action="{{ url_for('register') }}">
+            <label><span class="label-name">Nom</span>
+                <input type="text" name="name" required>
+            </label>
+            <label><span class="label-name">Email</span>
+                <input type="email" name="email" required>
+            </label>
+            <label><span class="label-name">Mot de passe</span>
+                <input type="password" name="password" required>
+            </label>
+            <button type="submit">Créer un compte</button>
+        </form>
+
+        <p>
+            <a href="{{ url_for('login') }}">Retour à la connexion</a>
+        </p>
+        {% endif %}
+    </card>
+    {# zone pour les messages #}
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+    <p class="success">{{ success }}</p>
+    {% endif %}
 </body>
 
 </html>
