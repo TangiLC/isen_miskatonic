@@ -16,10 +16,10 @@ MONGO_USERNAME = os.getenv("MONGO_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
 MONGO_PORT = os.getenv("MONGO_PORT", "27018")
-DB_NAME = os.getenv("DB_NAME", "miska")
+DB_NAME = os.getenv("DB_NAME", "miskatonic")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "questions")
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))
-CSV_SOURCE = os.getenv("CSV_SOURCE", "../../source/questions.csv")
+CSV_SOURCE = os.getenv("CSV_SOURCE", "./questions.csv")
 
 SUBJECT_FIX_ENABLED = os.getenv("SUBJECT_FIX_ENABLED", "true")
 SUBJECT_SEUIL = float(os.getenv("SUBJECT_SEUIL", "0.90"))
@@ -104,13 +104,57 @@ def normalize_correct(v: Optional[str]) -> Optional[List[str]]:
     if v is None:
         return []
 
-    txt = v.strip()
+    txt = v.strip().upper()
     if not txt:
         return []
     txt = txt.replace(",", " ").replace("-", " ")
     parts = [p for p in txt.split() if p]
 
     return parts
+
+
+def standardize_question(question: str) -> str:
+    """
+    Standardise une question :
+    - Supprime les espaces en début/fin
+    - Supprime le dernier caractère si c'est ":"
+    """
+    if not question:
+        return question
+
+    standardized = question.strip()
+    if standardized.endswith(":"):
+        standardized = standardized[:-1].strip()
+
+    return standardized
+
+
+def create_question_key(question: str) -> str:
+    """
+    Crée une clé unique basée uniquement sur la question standardisée pour détecter les doublons
+    """
+    return standardize_question(question).lower()
+
+
+def merge_responses_and_corrects(
+    existing_reponses: List[str],
+    new_reponses: List[str],
+    existing_corrects: List[str],
+    new_corrects: List[str],
+) -> tuple:
+    """
+    Fusionne les réponses et corrects en supprimant les doublons
+    Retourne (reponses_merged, corrects_merged)
+    """
+    # Fusion des réponses en préservant l'ordre et supprimant les doublons
+    all_reponses = existing_reponses + [
+        r for r in new_reponses if r not in existing_reponses
+    ]
+
+    # Fusion des corrects en supprimant les doublons
+    all_corrects = list(set(existing_corrects + new_corrects))
+
+    return all_reponses, sorted(all_corrects)
 
 
 # --- Lecture CSV + nettoyage + correction des subjects ---
@@ -122,8 +166,11 @@ def read_csv_rows(
     - supprime espaces en trop
     - 'correct' -> normalisation
     - 'subject' -> rapprochement /correction typo
+    - déduplication des questions identiques
+    - restructuration responseA/B/C/D -> liste "responses"
     """
     subjects_count: Dict[str, int] = {}
+    questions_cache: Dict[str, dict] = {}  # Cache pour détecter les doublons
 
     with open(file_path, "r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
@@ -131,28 +178,101 @@ def read_csv_rows(
             return
 
         for row in reader:
-            cleaned_row: Dict[str, Any] = {}
+            # Nettoyage initial des colonnes
+            question = strip_or_none(row.get("question"))
+            if question:
+                question = standardize_question(
+                    question
+                )  # Standardisation de la question
+            subject = strip_or_none(row.get("subject"))
+            use = strip_or_none(row.get("use"))
+            correct = normalize_correct(row.get("correct"))
+            responseA = strip_or_none(row.get("responseA"))
+            responseB = strip_or_none(row.get("responseB"))
+            responseC = strip_or_none(row.get("responseC"))
+            responseD = strip_or_none(row.get("responseD"))
+            remark = strip_or_none(row.get("remark"))
 
-            for column_name, cell_value in row.items():
-                if not column_name:
-                    continue
-                key = column_name.strip()
-                val = strip_or_none(cell_value)
+            # Ignorer les lignes sans question
+            if not question:
+                continue
 
-                if key == "correct":
-                    val = normalize_correct(val)
+            # Création de la clé pour détecter les doublons (basée uniquement sur la question)
+            question_key = create_question_key(question or "")
 
-                if fix_subjects and key == "subject" and val:
-                    canon = canonicalize_subject(
-                        val, subjects_count, seuil=subject_seuil
-                    )
-                    val = canon
-                    subjects_count[canon] = subjects_count.get(canon, 0) + 1
+            # Correction du subject si activée
+            if fix_subjects and subject:
+                canon = canonicalize_subject(
+                    subject, subjects_count, seuil=subject_seuil
+                )
+                subject = canon
+                subjects_count[canon] = subjects_count.get(canon, 0) + 1
 
-                cleaned_row[key] = val
+            # Création des listes de réponses et corrects pour cette ligne
+            liste_reponses = []
+            liste_corrects = []
 
-            if cleaned_row:
-                yield cleaned_row
+            # Mapping des réponses avec leurs labels
+            response_mapping = {
+                "A": responseA,
+                "B": responseB,
+                "C": responseC,
+                "D": responseD,
+            }
+
+            # Construction de la liste des réponses
+            for label in ["A", "B", "C", "D"]:
+                response_text = response_mapping[label]
+                if response_text:
+                    liste_reponses.append(response_text)
+
+            # Construction de la liste des textes corrects
+            for correct_label in correct:
+                if (
+                    correct_label in response_mapping
+                    and response_mapping[correct_label]
+                ):
+                    liste_corrects.append(response_mapping[correct_label])
+
+            # Vérification des doublons
+            if question_key in questions_cache:
+                existing_question = questions_cache[question_key]
+                existing_reponses = existing_question.get("responses", [])
+                existing_corrects = existing_question.get("corrects", [])
+
+                # Fusion des réponses et corrects
+                merged_reponses, merged_corrects = merge_responses_and_corrects(
+                    existing_reponses,
+                    liste_reponses,
+                    existing_corrects,
+                    liste_corrects,
+                )
+
+                # Mise à jour de la question existante
+                questions_cache[question_key]["responses"] = merged_reponses
+                questions_cache[question_key]["corrects"] = merged_corrects
+
+                print(
+                    f"Question fusionnée: {question[:30]}... | Réponses:{len(merged_reponses)}"
+                )
+                continue
+
+            # Création du document final
+            cleaned_row = {
+                "question": question,
+                "subject": [subject] if subject else [],
+                "use": [use] if use else [],
+                "responses": liste_reponses,
+                "corrects": liste_corrects,
+                "remark": remark,
+            }
+
+            # Mise en cache
+            questions_cache[question_key] = cleaned_row
+
+    # Retour des questions uniques
+    for question_data in questions_cache.values():
+        yield question_data
 
 
 # --- Connexion MongoDB ---
@@ -249,4 +369,6 @@ def populate_mongo():
             pass
 
 
-populate_mongo()
+if __name__ == "__main__":
+    print("Lancement de Mongo Populate...")
+    populate_mongo()

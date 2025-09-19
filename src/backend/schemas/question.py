@@ -1,60 +1,86 @@
-from typing import List, Optional
+from typing import Dict, List, Optional, Literal
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class QuestionCreate(BaseModel):
     """
-    Schema pour la création d'une nouvelle question.
+    Schéma d'entrée pour la création d'une question.
     """
 
-    # _id: str = Field(..., description="Identifiant unique (MongoDB) de la question")
-    question: str = Field(..., description="Intitulé de la question")
-    subject: str = Field(..., description="Sujet de la question")
-    use: str = Field(..., description="Contexte de la question")
-    correct: List[str] = Field(..., description="Liste des réponses correctes")
-    responseA: Optional[str] = Field(None, description="Réponse A")
-    responseB: Optional[str] = Field(None, description="Réponse B")
-    responseC: Optional[str] = Field(None, description="Réponse C")
-    responseD: Optional[str] = Field(None, description="La Réponse D")
-    remark: Optional[str] = Field(None, description="Remarque ou commentaire")
-    # created_by: Optional[int] = Field(None, description="ID du créateur")
+    question: str = Field(..., description="Intitulé de la question.")
+    subject: List[str] = Field(..., description="sujets de la question (tags).")
+    use: List[str] = Field(..., description="contextes d'utilisation")
+    corrects: List[str] = Field(..., description="Liste des réponses correctes.")
+    responses: List[str] = Field(..., description="Liste des propositions de réponse.")
+    remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
 
 
 class QuestionResponse(BaseModel):
     """
-    Schema pour la réponse après création d'une question.
+    Schéma de sortie renvoyé par l'API pour une question.
     """
 
-    id: str = Field(..., description="ID généré automatiquement par MongoDB")
-    question: str
-    subject: str
-    use: str
-    correct: List[str]
-    responseA: Optional[str] = None
-    responseB: Optional[str] = None
-    responseC: Optional[str] = None
-    responseD: Optional[str] = None
-    remark: Optional[str] = None
-    created_by: Optional[int] = None
-    created_at: Optional[datetime] = None
-    edited_at: Optional[datetime] = None
+    id: str = Field(..., description="Identifiant MongoDB généré automatiquement.")
+    question: str = Field(..., description="Intitulé de la question.")
+    subject: List[str] = Field(..., description="sujets de la question (tags).")
+    use: List[str] = Field(..., description="contextes d'utilisation")
+    corrects: List[str] = Field(..., description="Liste des réponses correctes.")
+    responses: List[str] = Field(..., description="Liste des propositions de réponse.")
+    remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
+    created_by: Optional[int] = Field(None, description="Identifiant du créateur.")
+    created_at: Optional[datetime] = Field(None, description="Date de création")
+    edited_at: Optional[datetime] = Field(None, description="Date de modification")
 
 
 class QuestionUpdate(BaseModel):
     """
-    Schema pour la mise à jour d'une question existante.
+    Schéma d'entrée pour la mise à jour partielle d'une question.
     Tous les champs sont optionnels.
     """
 
-    question: Optional[str] = Field(None, description="Intitulé de la question")
-    subject: Optional[str] = Field(None, description="Sujet de la question")
-    use: Optional[str] = Field(None, description="Contexte de la question")
-    correct: Optional[List[str]] = Field(
-        None, description="Liste des réponses correctes"
+    question: Optional[str] = Field(None, description="Intitulé de la question.")
+    subject: List[str] = Field(..., description="sujets de la question (tags).")
+    use: List[str] = Field(..., description="contextes d'utilisation")
+    corrects: List[str] = Field(..., description="Liste des réponses correctes.")
+    responses: List[str] = Field(..., description="Liste des propositions de réponse.")
+    remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
+
+
+class AnswerCheckResponse(BaseModel):
+    """
+    Réponse renvoyée par l'API lors de la vérification d'une/plusieurs réponses.
+    Ne contient que des compteurs entiers.
+    """
+
+    expected_good: int = Field(
+        ..., ge=0, description="Total de bonnes réponses attendues."
     )
-    responseA: Optional[str] = Field(None, description="Réponse A")
-    responseB: Optional[str] = Field(None, description="Réponse B")
-    responseC: Optional[str] = Field(None, description="Réponse C")
-    responseD: Optional[str] = Field(None, description="Réponse D")
-    remark: Optional[str] = Field(None, description="Remarque ou commentaire")
+    sent_good: int = Field(..., ge=0, description="Total de bonnes réponses envoyées.")
+    sent_bad: int = Field(
+        ..., ge=0, description="Total de mauvaises réponses envoyées."
+    )
+    corrects: Optional[List[str]] = Field(
+        None,
+        description="Liste des réponses correctes (si show_correct=true).",
+    )
+
+
+class CSVImportResponse(BaseModel):
+    """Réponse de l'import CSV"""
+
+    success: bool
+    imported: int
+    errors: int
+    merged: int
+    error_details: List[Dict[str, str]]
+    message: str
+
+
+class CSVImportStats(BaseModel):
+    """Statistiques de l'import"""
+
+    total_rows: int
+    valid_questions: int
+    merged_questions: int
+    subject_corrections: int

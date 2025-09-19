@@ -32,7 +32,7 @@ class AuthService:
 
         # Claims pour le token JWT
         token_claims = {
-            "uid": user.id,
+            "id": user.id,
             "name": user.name,
             "email": user.email,
             "role": user.role.value,

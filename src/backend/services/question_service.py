@@ -29,15 +29,11 @@ class QuestionService:
             Question: L'objet Question créé
         """
         question = Question(
-            # _id=question_data._id,
             question=question_data.question,
             subject=question_data.subject,
             use=question_data.use,
-            correct=question_data.correct or [],
-            responseA=question_data.responseA,
-            responseB=question_data.responseB,
-            responseC=question_data.responseC,
-            responseD=question_data.responseD,
+            corrects=question_data.corrects or [],
+            responses=question_data.responses or [],
             remark=question_data.remark,
             created_by=user_id,
             created_at=datetime.now(ZoneInfo("Europe/Paris")).replace(microsecond=0),

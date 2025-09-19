@@ -8,7 +8,7 @@ class UserCreate(BaseModel):
     Payload de test pour /auth/testjwt/ (pas de BDD).
     """
 
-    id: Optional[str] = Field(None, description="Identifiant technique (optionnel)")
+    id: Optional[int] = Field(None, description="Identifiant technique (optionnel)")
     name: str = Field(..., description="Nom de l'utilisateur")
     email: EmailStr = Field(..., description="Email de l'utilisateur")
     role: Optional[UserRole] = Field(
