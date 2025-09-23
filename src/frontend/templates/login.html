@@ -9,46 +9,53 @@
 </head>
 
 <body>
-    <card class="center-card">
-        <h1>{% if showLoginForm %}Authentification{% else %}Création de compte{% endif %}</h1>
+    <h1>MISKATONIC</h1>
+    <div class="h-container">
+        <div class="side">
+            <img src="{{ url_for('static', filename='assets/qr.png') }}">
+        </div>
+        <card class="center-card">
+            <h2>{% if showLoginForm %}Connexion{% else %}Création de compte{% endif %}</h2>
 
 
-        {% if showLoginForm %}
+            {% if showLoginForm %}
 
-        <form method="post" action="{{ url_for('authentifier') }}">
-            <label><span class="label-name">Login</span>
-                <input type="text" name="name" required>
-            </label>
-            <label><span class="label-name">Mot de passe</span>
-                <input type="password" name="password" required>
-            </label>
-            <button type="submit">Se connecter</button>
-        </form>
+            <form method="post" action="{{ url_for('authentifier') }}">
+                <label><span class="label-name">Login</span>
+                    <input type="text" name="name" placeholder="Votre login" required>
+                </label>
+                <label><span class="label-name">Mot de passe</span>
+                    <input type="password" name="password" placeholder="Votre mot de passe" required>
+                </label>
+                <button type="submit">Se connecter</button>
+            </form>
 
-        <p>
-            <a href="{{ url_for('register') }}">Créer un compte</a>
-        </p>
+            <p>
+                <a href="{{ url_for('register') }}">Créer un compte</a>
+            </p>
 
-        {% else %}
+            {% else %}
 
-        <form method="post" action="{{ url_for('register') }}">
-            <label><span class="label-name">Nom</span>
-                <input type="text" name="name" required>
-            </label>
-            <label><span class="label-name">Email</span>
-                <input type="email" name="email" required>
-            </label>
-            <label><span class="label-name">Mot de passe</span>
-                <input type="password" name="password" required>
-            </label>
-            <button type="submit">Créer un compte</button>
-        </form>
+            <form method="post" action="{{ url_for('register') }}">
+                <label><span class="label-name">Nom</span>
+                    <input type="text" name="name" required>
+                </label>
+                <label><span class="label-name">Email</span>
+                    <input type="email" name="email" required>
+                </label>
+                <label><span class="label-name">Mot de passe</span>
+                    <input type="password" name="password" required>
+                </label>
+                <button type="submit">Créer un compte</button>
+            </form>
 
-        <p>
-            <a href="{{ url_for('login') }}">Retour à la connexion</a>
-        </p>
-        {% endif %}
-    </card>
+            <p>
+                <a href="{{ url_for('login') }}">Retour à la connexion</a>
+            </p>
+            {% endif %}
+        </card>
+        <div class="side"></div>
+    </div>
     {# zone pour les messages #}
     {% if error %}
     <p class="error">{{ error }}</p>

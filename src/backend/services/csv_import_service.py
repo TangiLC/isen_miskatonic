@@ -73,12 +73,11 @@ class CSVImportService:
                 )
 
         return CSVImportResponse(
-            success=len(errors)
-            < len(questions_data),  # Succès si au moins une question importée
+            success=len(errors) < len(questions_data),
             imported=imported_count,
             errors=len(errors),
             merged=stats.get("merged_questions", 0),
-            error_details=errors[:10],  # Limite à 10 erreurs
+            error_details=errors[:10],
             message=self._generate_import_message(imported_count, len(errors), stats),
         )
 

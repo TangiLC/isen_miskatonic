@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if showLoginForm %}Connexion{% else %}Création de compte{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/sty.css') }}">
+</head>
+
+<body>
+    <h1>MISKATONIC</h1>
+    <h2>BIENVENUE</h2>
+
+    <div class="main">
+        <div class="container form-container">
+            {% if showLoginForm %}
+            <h3>Connexion</h3>
+
+            <form id="loginForm" method="post" action="{{ url_for('authentifier') }}">
+                <div class="field">
+                    <label for="name">Nom</label>
+                    <input type="text" id="name" name="name" placeholder="Entrez votre nom" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe"
+                        required>
+                </div>
+
+                <h4>Rôle</h4>
+                <div class="roles" id="roles">
+
+                    <div class="role-card" data-role="teacher" tabindex="0">
+                        <img src="{{ url_for('static', filename='assets/krapabel.png') }}" alt="Professeur">
+                        <p>Professeur</p>
+                        <button type="submit">Se connecter</button>
+                    </div>
+                    <div class="role-card" data-role="student" tabindex="0">
+                        <img src="{{ url_for('static', filename='assets/bart.png') }}" alt="Élève">
+                        <p>Élève</p>
+                        <button type="submit">Se connecter</button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="role" name="role">
+            </form>
+
+            <p><a href="{{ url_for('register') }}">Pas encore de compte ? Inscrivez-vous</a></p>
+
+            {% else %}
+            <h3>Création de compte</h3>
+            <form method="post" action="{{ url_for('register') }}">
+                <div class="field">
+                    <label for="reg_name"><span class="label-name">Nom</span></label>
+                    <input type="text" id="reg_name" name="name" required>
+                </div>
+                <div class="field">
+                    <label for="reg_email"><span class="label-name">Email</span></label>
+                    <input type="email" id="reg_email" name="email" required>
+                </div>
+                <div class="field">
+                    <label for="reg_password"><span class="label-name">Mot de passe</span></label>
+                    <input type="password" id="reg_password" name="password" required>
+                </div>
+                <button type="submit" id="create-account" disabled>Créer un compte</button>
+            </form>
+
+            <p><a href="{{ url_for('login') }}">Retour à la connexion</a></p>
+            {% endif %}
+        </div>
+
+        <div class="container confidentialite">
+            <h3>Politique de confidentialité</h3>
+            <button class="toggle-btn" type="button">Voir la politique de confidentialité</button>
+            <div id="privacy-content" class="content" style=`display:{% if not showLoginForm %}block{% else %}none{%
+                endif %};`>
+                <p>
+                    Nous respectons votre vie privée. Les informations collectées lors de votre inscription
+                    ne seront utilisées que pour améliorer votre expérience sur notre site.
+                </p>
+                <p>
+                    Vos données personnelles ne seront jamais vendues ou partagées avec des tiers sans votre
+                    consentement.
+                </p>
+                <p>
+                    Vous pouvez demander la suppression de vos données à tout moment en nous contactant.
+                </p>
+                <p>
+                    <input type="checkbox" name="cgu-agree" id="cgu-agree">
+                    Veuillez cocher pour accepter.
+                </p>
+            </div>
+        </div>
+    </div>
+    {# zone pour les messages #}
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+    <p class="success">{{ success }}</p>
+    {% endif %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Politique de confidentialité
+            const btn = document.querySelector(".toggle-btn");
+            const content = document.getElementById("privacy-content");
+            if (btn && content) {
+                btn.addEventListener("click", () => {
+                    const hidden = content.style.display === "none";
+                    content.style.display = hidden ? "block" : "none";
+                    btn.textContent = hidden ? "Masquer la politique de confidentialité" : "Voir la politique de confidentialité";
+                });
+            }
+
+
+            const form = document.getElementById("loginForm");
+            const roleInput = document.getElementById("role");
+            const cards = document.querySelectorAll(".role-card");
+
+            if (form && roleInput && cards.length) {
+                cards.forEach(card => {
+                    card.addEventListener("click", () => {
+                        roleInput.value = card.dataset.role;
+                        // Validation minimale avant submit
+                        const name = form.querySelector("#name").value.trim();
+                        const pwd = form.querySelector("#password").value.trim();
+                        if (!name || !pwd) {
+                            alert("Veuillez saisir vos identifiants avant de choisir un rôle.");
+                            return;
+                        }
+                        form.submit();
+                    });
+
+
+                });
+            }
+        });
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const checkbox = document.getElementById("cgu-agree");
+            const submitBtn = document.getElementById("create-account");
+
+            if (checkbox && submitBtn) {
+                checkbox.addEventListener("change", () => {
+                    submitBtn.disabled = !checkbox.checked;
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

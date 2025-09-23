@@ -45,6 +45,7 @@ class QuestionRepository:
                     "corrects": question.corrects,
                     "responses": question.responses,
                     "remark": question.remark,
+                    "status": question.status,
                     "created_by": question.created_by,
                     "created_at": question.created_at,
                     "edited_at": question.edited_at,
@@ -91,6 +92,7 @@ class QuestionRepository:
                 corrects=doc.get("corrects", []),
                 responses=doc.get("responses", []),
                 remark=doc.get("remark", ""),
+                status=doc.get("status") or "draft",
                 created_by=doc.get("created_by", ""),
                 created_at=doc.get("created_at", ""),
                 edited_at=doc.get("edited_at", ""),
@@ -142,6 +144,7 @@ class QuestionRepository:
                         corrects=doc.get("corrects", []),
                         responses=doc.get("responses", []),
                         remark=doc.get("remark"),
+                        status=(doc.get("status") or "draft"),
                         created_by=doc.get("created_by"),
                         created_at=doc.get("created_at"),
                         edited_at=doc.get("edited_at"),
@@ -165,6 +168,23 @@ class QuestionRepository:
             subjects = [s for s in subjects if s]  # filtre None / ""
             subjects.sort()
             return subjects
+
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return await loop.run_in_executor(executor, _sync_distinct)
+
+    ################################################################################
+    async def get_distinct_uses(self) -> List[str]:
+        """
+        Retourne la liste distincte des champs 'use' présents dans la collection.
+        """
+
+        def _sync_distinct():
+            collection = self._get_collection()
+            uses = collection.distinct("use")
+            uses = [u for u in uses if u]  # filtre None / ""
+            uses.sort()
+            return uses
 
         loop = asyncio.get_event_loop()
         with concurrent.futures.ThreadPoolExecutor() as executor:

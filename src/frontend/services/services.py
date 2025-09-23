@@ -176,3 +176,10 @@ class Service(Connection):
         finally:
             print("Fermeture connexion BDD...")
             cls.close()
+
+    @staticmethod
+    def get_user_from_token(token):
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        payload["password"] = "****"
+        payload["isAuth"] = True
+        return User.model_validate(payload)

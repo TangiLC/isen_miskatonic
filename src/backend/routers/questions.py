@@ -44,10 +44,10 @@ csv_import_service = CSVImportService()
 )
 async def create_question(
     question_data: QuestionCreate,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> QuestionResponse:
     try:
-        user_id = current_user.get("uid")
+        user_id = current_user.id
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -101,15 +101,15 @@ async def create_question(
 )
 async def get_question(
     id: str = Path(..., description="Identifiant MongoDB de la question"),
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> QuestionResponse:
     try:
-        user_role = (current_user.get("role") or "").upper()
+        user_role = (current_user.role).upper()
         q = await question_service.get_question_by_id(id)
 
         visible_corrects = []
-        if user_role in ["TEACHER", "ADMIN"]:
-            visible_corrects = q.corrects
+        # if user_role in ["TEACHER", "ADMIN"]:
+        visible_corrects = q.corrects
 
         return QuestionResponse(
             id=q.id,
@@ -149,10 +149,10 @@ async def get_question(
     tags=["Questions"],
 )
 async def get_questions(
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> List[QuestionResponse]:
     try:
-        user_role = (current_user.get("role") or "").upper()
+        user_role = (current_user.role).upper()
         items = await question_service.get_all_questions()
         results: List[QuestionResponse] = []
         for q in items:
@@ -203,6 +203,28 @@ async def get_subjects() -> List[str]:
         )
 
 
+@router.get(
+    "/api/uses",
+    response_model=List[str],
+    status_code=status.HTTP_200_OK,
+    summary="Lister les usages",
+    description="Retourne la liste distincte des 'use' présentes dans les questions.",
+    responses={
+        200: {"description": "Liste des usages renvoyée avec succès."},
+        500: {"description": "Erreur interne du serveur"},
+    },
+    tags=["Questions"],
+)
+async def get_uses() -> List[str]:
+    try:
+        return await question_service.get_uses()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la récupération des usages: {e}",
+        )
+
+
 @router.patch(
     "/api/question/{id}",
     response_model=QuestionResponse,
@@ -225,10 +247,10 @@ async def get_subjects() -> List[str]:
 async def update_question(
     id: str = Path(..., description="ID de la question à modifier"),
     question_data: QuestionUpdate = ...,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> QuestionResponse:
     try:
-        user_id = current_user.get("uid")
+        user_id = current_user.id
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

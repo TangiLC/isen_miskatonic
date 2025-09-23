@@ -18,7 +18,7 @@ class User(BaseModel):
     Pas de persistance pour le moment.
     """
 
-    id: Optional[str] = None
+    id: Optional[int] = None
     name: str
     email: EmailStr
     role: UserRole = UserRole.TEACHER

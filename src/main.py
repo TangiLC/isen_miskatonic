@@ -7,6 +7,15 @@ from concurrent.futures import ThreadPoolExecutor, wait
 
 
 class MonoRepoLauncher:
+    """
+    Mais pourquoi faire ça ?
+       Pour appliquer le multi-threading
+    Est-ce nécessaire et plus efficace que lancer indépendemment les deux serveurs ou avec Docker ?
+       Ni l'un ni l'autre
+    Donc c'est indispensable !
+
+    """
+
     def __init__(self):
         root = Path(__file__).resolve().parent
         self.targets = [root / "backend" / "api.py", root / "frontend" / "app.py"]

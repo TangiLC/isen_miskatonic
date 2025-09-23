@@ -19,13 +19,51 @@ button {
 
 button {
 	cursor: pointer;
+	background-color: #28a745;
+}
+
+label {
+	padding: 5px;
+	background-color: cornflowerblue;
+	border-radius: 4px;
+}
+
+h1 {
+	text-align: center;
+	color: blueviolet;
+}
+
+.h-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.side {
+	width: 19%;
+}
+
+.side img {
+	width: 100%;
 }
 
 .center-card {
+	background-color: rgb(142, 228, 243);
 	display: inline-block;
 	margin: auto;
 	text-align: center;
 	width: 60%;
+	border-radius: 6px;
+	border: 1px solid darkblue;
+}
+
+.scroll-card {
+	background-color: rgb(142, 228, 243);
+	display: inline-block;
+	margin: auto;
+	text-align: center;
+	width: 80%;
+	overflow: scroll;
+	max-height: 12rem;
 	border-radius: 6px;
 	border: 1px solid darkblue;
 }
@@ -36,7 +74,7 @@ button {
 }
 
 .center-card form button {
-	width: 90%;
+	width: 70%;
 	margin: auto;
 }
 
@@ -44,6 +82,19 @@ button {
 	display: inline-block;
 	width: 6rem;
 	text-align: end;
+}
+
+.button-info-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.button-info-container div {
+	width: 45%;
+	padding: 0.3rem;
+	text-align: center;
+	justify-self: center;
 }
 
 .error {
@@ -56,4 +107,40 @@ button {
 	margin: auto;
 	background-color: darkgreen;
 	color: white;
+}
+
+#questionsTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+#questionsTable thead {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background-color: rgb(142, 228, 243);
+}
+#questionsTable th {
+	text-align: center;
+}
+#questionsTable th,
+#questionsTable td {
+	border: 1px solid darkblue;
+	padding: 0.25rem 0.5rem;
+	text-align: left;
+}
+#loadQ {
+	margin: auto;
+}
+
+button .action-icon-button {
+	font-size: 0.8rem;
+	padding: 0.3rem;
+	text-align: center;
+	justify-self: center;
+	background-color: blueviolet;
+}
+
+button .action-icon-button .disabled {
+	background-color: #ccc;
+	color: #666;
 }

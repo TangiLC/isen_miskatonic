@@ -1,0 +1,405 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
+}
+
+h1,
+h2 {
+	text-align: center;
+	color: #4b0082;
+}
+
+.main {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 2rem;
+	flex-wrap: wrap;
+	margin-top: 2rem;
+}
+
+.form-container h3 {
+	text-align: center;
+}
+
+/* Carrés */
+.container {
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 75px rgba(0, 0, 0, 0.2);
+	width: 350px;
+	box-sizing: border-box;
+}
+
+/* Formulaire */
+.form-container {
+	background: #8ee4f3;
+}
+
+/* Confidentialité */
+.confidentialite {
+	background: #f0f8ff;
+}
+
+/* Champs formulaire */
+.field {
+	margin-bottom: 1rem;
+	text-align: left;
+}
+
+.field label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 0.3rem;
+}
+
+.field input {
+	width: 100%;
+	padding: 0.5rem;
+	border-radius: 15px;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+}
+
+/* Boutons */
+button {
+	width: 100%;
+	padding: 0.7rem;
+	background-color: #28a745;
+	border: none;
+	border-radius: 5px;
+	color: white;
+	font-size: 1rem;
+	cursor: pointer;
+	margin-top: 0.5rem;
+}
+
+button:hover {
+	background-color: #218838;
+}
+
+/* Bouton toggle pour confidentialité */
+.toggle-btn {
+	background-color: #007bff;
+	margin-bottom: 1rem;
+}
+
+.toggle-btn:hover {
+	background-color: #0056b3;
+}
+
+.content p {
+	margin: 0.5rem 0;
+}
+
+/* Flexibilité mobile */
+@media (max-width: 800px) {
+	.main {
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+p a {
+	text-decoration: none;
+	color: #007bff;
+}
+
+p a:hover {
+	text-decoration: underline;
+}
+
+/* Section rôle */
+.form-container h4 {
+	text-align: center;
+	margin-bottom: 1rem;
+	color: #333;
+}
+
+.error {
+	margin: auto;
+	background-color: brown;
+	color: white;
+}
+
+.success {
+	margin: auto;
+	background-color: darkgreen;
+	color: white;
+}
+
+.roles {
+	display: flex;
+	justify-content: space-around;
+	gap: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.role-card {
+	width: 100%;
+	text-align: center;
+	cursor: pointer;
+	transition: transform 0.2s, box-shadow 0.2s;
+	border-radius: 10px;
+	padding: 0.5rem;
+}
+
+.role-card img {
+	height: 80px;
+	border-radius: 50%;
+	transition: transform 0.3s;
+	border: 2px solid transparent;
+}
+
+.role-card:hover img {
+	transform: scale(1.1);
+	border: 2px solid #28a745;
+	box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+}
+
+.role-card p {
+	margin-top: 0.5rem;
+	font-weight: bold;
+	color: #4b0082;
+}
+
+#create-account:disabled,
+#submit-btn:disabled {
+	background-color: #ccc;
+	color: #666;
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+.card-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin: 1rem auto;
+}
+
+.scroll-card {
+	display: inline-block;
+	margin: auto;
+	text-align: center;
+	width: 90%;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	max-height: 12rem;
+	border-radius: 6px;
+	border: 1px solid darkblue;
+}
+
+.button-info-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.button-info-container div {
+	width: 45%;
+	padding: 0.3rem;
+	text-align: center;
+	justify-self: center;
+}
+
+#questionsTable {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+#questionsTable thead {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background-color: lightgray;
+}
+#questionsTable th {
+	text-align: center;
+}
+#questionsTable #id {
+	width: 6%;
+}
+#questionsTable #question {
+	width: 32%;
+}
+#questionsTable #subject {
+	width: 14%;
+	text-wrap: wrap;
+}
+#questionsTable #use {
+	width: 14%;
+}
+#questionsTable #author {
+	width: 6%;
+}
+#questionsTable #date {
+	width: 11%;
+}
+#questionsTable #actions {
+	width: 17%;
+}
+
+#questionsTable th,
+#questionsTable td {
+	border: 1px solid black;
+	padding: 0.25rem 0.5rem;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#loadQ {
+	margin: auto;
+	width: 50%;
+}
+
+#createQ {
+	margin: auto;
+	width: 50%;
+}
+
+.action-icon-btn {
+	font-size: 0.8rem;
+	padding: 0.3rem;
+	text-align: center;
+	width: 30%;
+	margin: 1px;
+}
+
+.action-icon-btn:disabled {
+	background-color: #ccc;
+	color: #666;
+}
+
+#question-modal {
+	width: 100%;
+	height: 100%;
+	margin: auto;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 300;
+	background-color: rgba(200, 200, 200, 0.3);
+}
+#question-modal .card-container {
+	border: 1px solid black;
+	background-color: rgba(220, 220, 220, 1);
+	border-radius: 6px;
+	padding: 0.8rem;
+	height: 35rem;
+	margin-top: 2rem;
+}
+
+.response-row.correct input {
+	border: 2px solid green;
+}
+
+.question-detail,
+.q-info {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	width: 90%;
+}
+
+.question-title {
+	grid-column: span 4;
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	width: 100%;
+}
+
+.question-title h2 {
+	grid-column: span 11;
+	width: 100%;
+}
+
+.question-title button {
+	background-color: transparent;
+	padding: 0.3rem;
+	width: 100%;
+	text-align: end;
+}
+.question-title button img {
+	width: 2rem;
+}
+
+.question-detail div {
+	padding: 0.2rem;
+}
+
+.q-question,
+.q-remark,
+.q-info {
+	grid-column: span 4;
+	width: 99%;
+}
+
+.q-question,
+.q-remark {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.q-question input,
+.q-remark input {
+	width: 80%;
+	padding: 8px;
+	margin: 3px;
+}
+
+.q-question label,
+.q-remark label {
+	margin-top: 0.6rem;
+}
+
+.q-subject,
+.q-use {
+	grid-column: span 2;
+}
+
+.q-response {
+	grid-column: span 3;
+}
+
+.q-adder {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+}
+
+.q-adder input {
+	width: 92%;
+	padding: 8px;
+	margin: 4px 0px;
+}
+
+.q-buttons {
+	grid-column: span 1;
+}
+
+.response-row,
+.q-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.q-row select {
+	width: 50%;
+}
+.response-input {
+	width: 70%;
+}
+.correct-flag {
+	width: 6rem;
+	padding: 0.5rem;
+}
+
+.remove-response {
+	width: 5rem;
+	margin-top: 0.1rem;
+	background-color: red;
+}

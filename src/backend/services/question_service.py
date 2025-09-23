@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 from zoneinfo import ZoneInfo
-from models.question import Question
+from models.question import Question, QuestionStatus
 from schemas.question import QuestionCreate, QuestionUpdate
 from repositories.question_repository import QuestionRepository
 
@@ -35,6 +35,7 @@ class QuestionService:
             corrects=question_data.corrects or [],
             responses=question_data.responses or [],
             remark=question_data.remark,
+            status="draft" if question_data.corrects == [] else "active",
             created_by=user_id,
             created_at=datetime.now(ZoneInfo("Europe/Paris")).replace(microsecond=0),
             edited_at=None,
@@ -60,6 +61,8 @@ class QuestionService:
 
         if question is None:
             raise LookupError("Question introuvable")
+        if not getattr(question, "status", None):
+            question.status = "draft"
         return question
 
     ################################################################################
@@ -75,6 +78,13 @@ class QuestionService:
         Retourne la liste des sujets distincts.
         """
         return await self.repository.get_distinct_subjects()
+
+    ################################################################################
+    async def get_uses(self) -> List[str]:
+        """
+        Retourne la liste des uses distincts.
+        """
+        return await self.repository.get_distinct_uses()
 
     ################################################################################
     async def update_question(

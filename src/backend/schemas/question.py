@@ -2,6 +2,8 @@ from typing import Dict, List, Optional, Literal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
+from models.question import QuestionStatus
+
 
 class QuestionCreate(BaseModel):
     """
@@ -14,6 +16,9 @@ class QuestionCreate(BaseModel):
     corrects: List[str] = Field(..., description="Liste des réponses correctes.")
     responses: List[str] = Field(..., description="Liste des propositions de réponse.")
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
+    status: Optional[QuestionStatus] = Field(
+        None, description="Statut de la question (draft/active/archive)"
+    )
 
 
 class QuestionResponse(BaseModel):
@@ -28,6 +33,9 @@ class QuestionResponse(BaseModel):
     corrects: List[str] = Field(..., description="Liste des réponses correctes.")
     responses: List[str] = Field(..., description="Liste des propositions de réponse.")
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
+    status: Optional[QuestionStatus] = Field(
+        None, description="Statut de la question (draft/active/archive)"
+    )
     created_by: Optional[int] = Field(None, description="Identifiant du créateur.")
     created_at: Optional[datetime] = Field(None, description="Date de création")
     edited_at: Optional[datetime] = Field(None, description="Date de modification")
@@ -40,10 +48,10 @@ class QuestionUpdate(BaseModel):
     """
 
     question: Optional[str] = Field(None, description="Intitulé de la question.")
-    subject: List[str] = Field(..., description="sujets de la question (tags).")
-    use: List[str] = Field(..., description="contextes d'utilisation")
-    corrects: List[str] = Field(..., description="Liste des réponses correctes.")
-    responses: List[str] = Field(..., description="Liste des propositions de réponse.")
+    subject: List[str] = Field(None, description="sujets de la question (tags).")
+    use: List[str] = Field(None, description="contextes d'utilisation")
+    corrects: List[str] = Field(None, description="Liste des réponses correctes.")
+    responses: List[str] = Field(None, description="Liste des propositions de réponse.")
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
 
 

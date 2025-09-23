@@ -19,8 +19,8 @@ class AuthService:
         Returns:
             TokenResponse: Réponse contenant le token et les infos utilisateur
         """
-        # Génération d'un ID unique si non fourni
-        user_id = payload.id or str(uuid.uuid4())
+
+        user_id = payload.id
 
         user = User(
             id=user_id,

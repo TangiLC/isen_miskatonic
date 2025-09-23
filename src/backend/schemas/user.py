@@ -21,7 +21,7 @@ class UserResponse(BaseModel):
     DTO exposé par l'API (sans password).
     """
 
-    id: Optional[str] = None
+    id: Optional[int] = None
     name: str
     email: EmailStr
     role: UserRole
