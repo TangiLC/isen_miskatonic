@@ -43,92 +43,67 @@
         </div>
         <div></div>
     </div>
+    {% include "question-modale.html" %}
 
-    <div id="question-modal" style="display:none">
-        <div class="card-container">
-            <card class="question-detail" id="question-detail">
-                <div class="question-title">
-                    <h2 style="margin:0;">Création d'une nouvelle question</h2>
-                    <button id="q-close-btn" type="button" aria-label="Fermer la fenêtre" title="Fermer">
-                        <img src="{{ url_for('static', filename='/assets/icon-close.svg')}}">
-                    </button>
-                </div>
-                <div class="q-question">
-                    <label for="q-question-input">Intitulé</label>
-                    <input id="q-question-input" type="text" name="question" placeholder="Saisir la question"
-                        required />
-                </div>
-
-                <div class="q-subject">
-                    <label for="q-subject-select">Sujets</label>
-                    <div class="q-row">
-                        <select id="q-subject-select" multiple size="4" aria-label="Subjects"></select>
-                        <div class="q-adder">
-                            <input id="q-subject-add" type="text" placeholder="Ajouter un sujet..." />
-                            <button type="button" id="q-subject-add-btn">Ajouter un sujet</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="q-use">
-                    <label for="q-use-select">Usages</label>
-                    <div class="q-row">
-                        <select id="q-use-select" multiple size="4" aria-label="Uses"></select>
-                        <div class="q-adder">
-                            <input id="q-use-add" type="text" placeholder="Ajouter un usage..." />
-                            <button type="button" id="q-use-add-btn">Ajouter un usage</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="q-remark">
-                    <label for="q-remark-input">Remarque</label>
-                    <input type="txt" id="q-remark-input" name="remark" placeholder="Optionnel"></input>
-                </div>
-
-                <div class="q-info">
-                    <div>Créé par :{{user.name}}</div>
-                    <div>Créé le :</div>
-                    <div>Modifié le :</div>
-                    <div>
-                        <label for="q-status-select">Statut</label>
-                        <select id="q-status-select" name="status">
-                            <option value="draft" selected>Brouillon</option>
-                            <option value="active">Actif</option>
-                            <option value="archive">Archivé</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="q-response">
-                    <div class="responses-header">
-                        <span>Réponses</span>
-
-                    </div>
-                    <div id="responses-list"></div>
-                    <template id="response-row-tpl">
-                        <div class="response-row">
-                            <input type="text" class="response-input" placeholder="Réponse..." />
-                            <label class="correct-flag">
-                                <input type="checkbox" class="response-correct" />
-                                Correcte
-                            </label>
-                            <button type="button" class="remove-response">
-                                <img src="{{ url_for('static', filename='/assets/icon-trash.svg')}}"></button>
-                        </div>
-                    </template>
-                    <div class="response-row">
-                        <button type="button" id="add-response-btn" class="response-input">
-                            Ajouter une réponse</button>
-                    </div>
-                </div>
-
-                <div class="q-buttons">
-                    <button type="button" id="submit-btn">Enregistrer</button>
-                    <button type="button" id="reset-btn" class="secondary">Réinitialiser</button>
-                </div>
-            </card>
+    <div class="q-use">
+        <label for="q-use-select">Usages</label>
+        <div class="q-row">
+            <select id="q-use-select" multiple size="4" aria-label="Uses"></select>
+            <div class="q-adder">
+                <input id="q-use-add" type="text" placeholder="Ajouter un usage..." />
+                <button type="button" id="q-use-add-btn">Ajouter un usage</button>
+            </div>
         </div>
+    </div>
+
+    <div class="q-remark">
+        <label for="q-remark-input">Remarque</label>
+        <input type="txt" id="q-remark-input" name="remark" placeholder="Optionnel"></input>
+    </div>
+
+    <div class="q-info">
+        <div>Créé par :{{user.name}}</div>
+        <div>Créé le :</div>
+        <div>Modifié le :</div>
+        <div>
+            <label for="q-status-select">Statut</label>
+            <select id="q-status-select" name="status">
+                <option value="draft" selected>Brouillon</option>
+                <option value="active">Actif</option>
+                <option value="archive">Archivé</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="q-response">
+        <div class="responses-header">
+            <span>Réponses</span>
+
+        </div>
+        <div id="responses-list"></div>
+        <template id="response-row-tpl">
+            <div class="response-row">
+                <input type="text" class="response-input" placeholder="Réponse..." />
+                <label class="correct-flag">
+                    <input type="checkbox" class="response-correct" />
+                    Correcte
+                </label>
+                <button type="button" class="remove-response">
+                    <img src="{{ url_for('static', filename='assets/icon-trash.svg')}}"></button>
+            </div>
+        </template>
+        <div class="response-row">
+            <button type="button" id="add-response-btn" class="response-input">
+                Ajouter une réponse</button>
+        </div>
+    </div>
+
+    <div class="q-buttons">
+        <button type="button" id="submit-btn">Enregistrer</button>
+        <button type="button" id="reset-btn" class="secondary">Réinitialiser</button>
+    </div>
+    </card>
+    </div>
     </div>
 
     {% else %}
@@ -144,7 +119,7 @@
         };
     </script>
     <script src="{{ url_for('static', filename='scripts/table.js') }}"></script>
-    <script src="{{ url_for('static', filename='scripts/question_manager.js' )}}"></script>
+    <script type="module" src="{{ url_for('static', filename='scripts/question/index.js' )}}"></script>
 </body>
 
 </html>

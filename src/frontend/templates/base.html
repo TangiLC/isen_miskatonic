@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Miskatonic{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sty.css') }}">
+</head>
+
+<body>
+    <!-- Header commun -->
+    <header>
+        <h1>Miskatonic</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Accueil</a>
+            <a href="{{ url_for('about') }}">À propos</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 - Miska LH-TL</p>
+    </footer>
+</body>
+
+</html>

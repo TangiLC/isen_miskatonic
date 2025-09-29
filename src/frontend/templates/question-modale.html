@@ -1,0 +1,24 @@
+<div id="question-modal" style="display:none">
+    <div class="card-container">
+        <card class="question-detail" id="question-detail">
+            <div class="question-title">
+                <h2 style="margin:0;">Création d'une nouvelle question</h2>
+                <button id="q-close-btn" type="button" aria-label="Fermer la fenêtre" title="Fermer">
+                    <img src="{{ url_for('static', filename='assets/icon-close.svg')}}">
+                </button>
+            </div>
+            <div class="q-question">
+                <label for="q-question-input">Intitulé</label>
+                <input id="q-question-input" type="text" name="question" placeholder="Saisir la question" required />
+            </div>
+
+            <div class="q-subject">
+                <label for="q-subject-select">Sujets</label>
+                <div class="q-row">
+                    <select id="q-subject-select" multiple size="4" aria-label="Subjects"></select>
+                    <div class="q-adder">
+                        <input id="q-subject-add" type="text" placeholder="Ajouter un sujet..." />
+                        <button type="button" id="q-subject-add-btn">Ajouter un sujet</button>
+                    </div>
+                </div>
+            </div>

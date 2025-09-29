@@ -48,11 +48,20 @@ class QuestionUpdate(BaseModel):
     """
 
     question: Optional[str] = Field(None, description="Intitulé de la question.")
-    subject: List[str] = Field(None, description="sujets de la question (tags).")
-    use: List[str] = Field(None, description="contextes d'utilisation")
-    corrects: List[str] = Field(None, description="Liste des réponses correctes.")
-    responses: List[str] = Field(None, description="Liste des propositions de réponse.")
+    subject: Optional[List[str]] = Field(
+        None, description="sujets de la question (tags)."
+    )
+    use: Optional[List[str]] = Field(None, description="contextes d'utilisation")
+    corrects: Optional[List[str]] = Field(
+        None, description="Liste des réponses correctes."
+    )
+    responses: Optional[List[str]] = Field(
+        None, description="Liste des propositions de réponse."
+    )
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
+    status: Optional[QuestionStatus] = Field(
+        None, description="Statut de la question (draft/active/archive)"
+    )
 
 
 class AnswerCheckResponse(BaseModel):

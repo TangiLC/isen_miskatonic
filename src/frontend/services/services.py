@@ -177,6 +177,22 @@ class Service(Connection):
             print("Fermeture connexion BDD...")
             cls.close()
 
+    @classmethod
+    def get_user_name(cls, user_id: int) -> str:
+        try:
+            cls.connect()
+            query = "SELECT name FROM users WHERE id = ?"
+            cls.cursor.execute(query, (user_id,))
+            result = cls.cursor.fetchone()
+            if result and "name" in result.keys():
+                return result["name"]
+            return "Inconnu"
+        except Exception as err:
+            print(f"Erreur getUserName: {err}")
+            return "Inconnu"
+        finally:
+            cls.close()
+
     @staticmethod
     def get_user_from_token(token):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])

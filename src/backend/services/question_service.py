@@ -28,6 +28,18 @@ class QuestionService:
         Returns:
             Question: L'objet Question créé
         """
+        # Déterminer le statut : utiliser celui fourni ou calculer automatiquement
+        if question_data.status is not None:
+            # Utiliser le statut explicitement fourni
+            status = question_data.status
+        else:
+            # Logique par défaut : draft si pas de réponses correctes, sinon active
+            status = (
+                QuestionStatus.DRAFT
+                if not question_data.corrects
+                else QuestionStatus.ACTIVE
+            )
+
         question = Question(
             question=question_data.question,
             subject=question_data.subject,
@@ -35,7 +47,7 @@ class QuestionService:
             corrects=question_data.corrects or [],
             responses=question_data.responses or [],
             remark=question_data.remark,
-            status="draft" if question_data.corrects == [] else "active",
+            status=status or "draft",
             created_by=user_id,
             created_at=datetime.now(ZoneInfo("Europe/Paris")).replace(microsecond=0),
             edited_at=None,
@@ -62,7 +74,7 @@ class QuestionService:
         if question is None:
             raise LookupError("Question introuvable")
         if not getattr(question, "status", None):
-            question.status = "draft"
+            question.status = QuestionStatus.DRAFT
         return question
 
     ################################################################################
@@ -111,12 +123,15 @@ class QuestionService:
         if existing_question.created_by != user_id:
             raise PermissionError("Seul le créateur de la question peut la modifier")
 
+        # Convertir les données en dictionnaire, en excluant les champs non définis
         update_data = question_data.model_dump(exclude_unset=True)
 
+        # Ajouter la date de modification
         update_data["edited_at"] = datetime.now(ZoneInfo("Europe/Paris")).replace(
             microsecond=0
         )
 
+        # Effectuer la mise à jour
         await self.repository.update_question(question_id, update_data)
 
         # Retourner la question mise à jour

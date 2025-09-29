@@ -1,5 +1,5 @@
 from pathlib import Path
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 from services.services import Service
 from models.user import User
@@ -112,6 +112,12 @@ def welcome():
     utilisateur = Service.get_user_from_token(session["token"])
     utilisateur.isAuth
     return render_template("welcome.html", user=utilisateur, token=session["token"])
+
+
+@app.get("/api/users/<int:user_id>/name")
+def get_user_name(user_id):
+    user_name = Service.get_user_name(user_id)
+    return jsonify({"userName": user_name})
 
 
 if __name__ == "__main__":

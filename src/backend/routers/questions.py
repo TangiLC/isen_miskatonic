@@ -66,6 +66,7 @@ async def create_question(
             corrects=q.corrects,
             responses=q.responses,
             remark=q.remark,
+            status=q.status,
             created_by=q.created_by,
             created_at=q.created_at,
             edited_at=q.edited_at,
@@ -108,8 +109,8 @@ async def get_question(
         q = await question_service.get_question_by_id(id)
 
         visible_corrects = []
-        # if user_role in ["TEACHER", "ADMIN"]:
-        visible_corrects = q.corrects
+        if user_role in ["TEACHER", "ADMIN"]:
+            visible_corrects = q.corrects
 
         return QuestionResponse(
             id=q.id,
@@ -119,6 +120,7 @@ async def get_question(
             corrects=visible_corrects,
             responses=q.responses or [],
             remark=q.remark,
+            status=q.status or "draft",
             created_by=q.created_by,
             created_at=q.created_at,
             edited_at=q.edited_at,
@@ -168,6 +170,7 @@ async def get_questions(
                     corrects=visible_corrects,
                     responses=q.responses or [],
                     remark=q.remark,
+                    status=q.status,
                     created_by=q.created_by,
                     created_at=q.created_at,
                     edited_at=q.edited_at,
@@ -269,6 +272,7 @@ async def update_question(
             corrects=updated.corrects,
             responses=updated.responses,
             remark=updated.remark,
+            status=updated.status,
             created_by=updated.created_by,
             created_at=updated.created_at,
             edited_at=updated.edited_at,
