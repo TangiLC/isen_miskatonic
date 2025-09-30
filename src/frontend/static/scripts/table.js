@@ -107,10 +107,12 @@ class TableManager {
     }));
 
     // Action "Ajouter au quiz"
+    const canAdd = String(question.status) ==="active";
     actions.push(this.createActionButton({
       src: "/static/assets/icon-add.svg",
       title: "Ajouter au quizz",
-      onClick: () => this.handleAddToQuiz(question.id)
+      onClick: () => this.handleAddToQuiz(question.id),
+      disabled: !canAdd
     }));
 
     return actions;

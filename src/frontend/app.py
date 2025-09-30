@@ -42,7 +42,7 @@ def authentifier():
             session["token"] = token
             session["user_id"] = authenticated_user.id
 
-            return redirect(url_for("welcome"))
+            return redirect(url_for("page_questions"))
         else:
             error_message = "Login ou mot de passe incorrect."
             return render_template(
@@ -105,19 +105,26 @@ def creer_compte():
         return render_template("login1.html", showLoginForm=False, error=error_message)
 
 
-@app.route("/welcome")
-def welcome():
+@app.route("/questions")
+def page_questions():
     if "token" not in session:
         return redirect(url_for("login"))
     utilisateur = Service.get_user_from_token(session["token"])
     utilisateur.isAuth
-    return render_template("welcome.html", user=utilisateur, token=session["token"])
+    return render_template("question.html", user=utilisateur, token=session["token"])
 
 
 @app.get("/api/users/<int:user_id>/name")
 def get_user_name(user_id):
     user_name = Service.get_user_name(user_id)
     return jsonify({"userName": user_name})
+
+
+@app.route("/logout")
+def logout():
+    """Déconnecte l'utilisateur en nettoyant la session"""
+    session.clear()
+    return redirect(url_for("login"))
 
 
 if __name__ == "__main__":

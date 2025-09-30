@@ -5,6 +5,63 @@ body {
 	padding: 0;
 }
 
+nav {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	height: 2.8rem;
+	background-color: #f2f2f2;
+	width: 100%;
+	margin-top: 0.2rem;
+	margin-bottom: 1.5rem;
+}
+
+nav .nav-group {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
+nav .profil {
+	height: 2.5rem;
+	width: 2.5rem;
+	border-radius: 50%;
+	border: 2px solid #28a745;
+	box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+	background-color: #f2f2f2;
+}
+
+nav a {
+	text-decoration: none;
+}
+
+.nav-logo {
+	height: 100%;
+	max-width: 4rem;
+}
+.nav-logo img {
+	width: 100%;
+}
+
+.profil img {
+	height: 100%;
+}
+
+.nav-button {
+	display: flex;
+	flex-direction: row;
+	padding: 0.5rem;
+	height: 100%;
+	line-height: 2.6rem;
+	background-color: #28a745;
+	border: none;
+	border-radius: 5px 5px 0px 0px;
+	color: white;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
 h1,
 h2 {
 	text-align: center;

@@ -4,7 +4,7 @@ import unicodedata
 from collections import Counter
 from difflib import SequenceMatcher
 from typing import Dict, List, Iterator, Tuple
-from schemas.question import QuestionCreate
+from schemas.question import QuestionCreate, QuestionStatus
 
 
 class CSVQuestionProcessor:
@@ -73,7 +73,7 @@ class CSVQuestionProcessor:
                 best_subject = s
 
         if best_subject and best_score >= self.subject_threshold:
-            return best_subject, True  # Correction effectuée
+            return best_subject, True
         return subject, False
 
     def strip_or_none(self, v: str) -> str:
@@ -141,6 +141,12 @@ class CSVQuestionProcessor:
             raise ValueError(
                 f"Colonnes manquantes dans le CSV: {', '.join(missing_fields)}"
             )
+
+    def determine_status(self, corrects: List[str]) -> QuestionStatus:
+        """Détermine le statut de la question selon les corrects"""
+        if not corrects or len(corrects) == 0:
+            return QuestionStatus.DRAFT
+        return QuestionStatus.ACTIVE
 
     def process_csv_content(self, csv_content: str) -> List[QuestionCreate]:
         """Traite le contenu CSV et retourne la liste des questions"""
@@ -217,6 +223,9 @@ class CSVQuestionProcessor:
             )
             return
 
+        # Détermination du statut
+        status = self.determine_status(liste_corrects)
+
         # Nouvelle question
         cleaned_row = {
             "question": question,
@@ -225,6 +234,7 @@ class CSVQuestionProcessor:
             "responses": liste_responses,
             "corrects": liste_corrects,
             "remark": remark,
+            "status": status,
         }
 
         self.questions_cache[question_key] = cleaned_row
@@ -243,6 +253,12 @@ class CSVQuestionProcessor:
 
         self.questions_cache[question_key]["responses"] = merged_responses
         self.questions_cache[question_key]["corrects"] = merged_corrects
+
+        # Mise à jour du statut après la fusion
+        self.questions_cache[question_key]["status"] = self.determine_status(
+            merged_corrects
+        )
+
         self.stats["merged_questions"] += 1
 
     def get_stats(self) -> Dict[str, int]:

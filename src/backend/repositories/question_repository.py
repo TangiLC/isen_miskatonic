@@ -2,9 +2,10 @@ import asyncio
 
 import concurrent
 from models.question import Question
-from utils.database import database
 from bson import ObjectId
 from typing import Any, Dict, List, Optional
+
+from utils.mg_database import Database
 
 
 class QuestionRepository:
@@ -20,7 +21,7 @@ class QuestionRepository:
         """
         Récupère la collection de façon thread-safe.
         """
-        return database.get_collection()
+        return Database.get_collection()
 
     ################################################################################
     async def insert_question(self, question: Question) -> str:

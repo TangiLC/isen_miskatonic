@@ -4,16 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Miskatonic{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='sty.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/sty.css') }}">
 </head>
 
 <body>
     <!-- Header commun -->
     <header>
-        <h1>Miskatonic</h1>
         <nav>
-            <a href="{{ url_for('index') }}">Accueil</a>
-            <a href="{{ url_for('about') }}">À propos</a>
+            <div class="nav-logo">
+                <img src="{{ url_for('static', filename='assets/miskatonic.png') }}" alt="Miskatonic">
+            </div>
+            <div class="nav-group">
+                {% if user.role.name !="STUDENT"%}
+                <a href="{{ url_for('page_questions') }}">
+                    <div class="nav-button">Gérer les questions</div>
+                </a>
+                <a href="">
+                    <div class="nav-button">Gérer les questionnaires</div>
+                </a>{% endif %}
+                <a href="">
+                    <div class="nav-button">Afficher le questionnaire</div>
+                </a>
+            </div>
+            <div class="nav-group">
+                <div class="nav-button" onclick="alert('Gestion de votre profil dans la V2')">{{ user.name }}
+                    <div class="profil">
+                        {% if user.role.name =="STUDENT"%}
+                        <img src="{{ url_for('static', filename='assets/bart.png') }}" alt="Élève">
+                        {% elif user.role.name in ["TEACHER", "ADMIN"] %}
+                        <img src="{{ url_for('static', filename='assets/krapabel.png') }}" alt="Professeur">
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}">
+                    <div class="nav-button"><img src="{{ url_for('static', filename='assets/icon-logout.svg')}}"
+                            title="logout" alt="logout"></div>
+                </a>
+            </div>
         </nav>
     </header>
 

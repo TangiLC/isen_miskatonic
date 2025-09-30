@@ -9,7 +9,7 @@ from datetime import datetime
 from routers import questions
 from routers import auth
 from routers import questionnaires
-from utils.database import database
+from utils.mg_database import database
 
 
 class QuizAPI:

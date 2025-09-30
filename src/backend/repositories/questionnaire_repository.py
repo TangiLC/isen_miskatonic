@@ -1,7 +1,7 @@
 import asyncio
 import concurrent
 from models.questionnaire import Questionnaire
-from utils.database import database
+from utils.mg_database import database
 from bson import ObjectId
 from typing import Any, Dict, List, Optional
 
