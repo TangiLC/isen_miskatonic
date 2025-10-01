@@ -12,12 +12,24 @@ class QuestionnaireStatus(str, Enum):
     ARCHIVE = "archive"
 
 
+class QItem(BaseModel):
+    id: str
+    question: str
+
+
+class QUpdate(BaseModel):
+    id: str
+    question: str
+    subjects: Optional[List[str]] = None
+    uses: Optional[List[str]] = None
+
+
 class Questionnaire(BaseModel):
     id: Optional[str] = None
     title: str
-    subject: Optional[List[str]] = []
-    use: Optional[List[str]] = []
-    questions: List[str] = []
+    subjects: Optional[List[str]] = []
+    uses: Optional[List[str]] = []
+    questions: List[QItem] = []
     remark: Optional[str] = None
     status: Optional[QuestionnaireStatus] = QuestionnaireStatus.DRAFT
     created_by: Optional[int] = None

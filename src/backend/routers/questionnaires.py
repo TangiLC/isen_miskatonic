@@ -53,8 +53,8 @@ async def create_questionnaire(
         return QuestionnaireResponse(
             id=q.id,
             title=q.title,
-            subject=q.subject,
-            use=q.use,
+            subjects=q.subjects,
+            uses=q.uses,
             questions=q.questions,
             remark=q.remark,
             status=q.status,
@@ -100,8 +100,8 @@ async def get_questionnaire(
         return QuestionnaireResponse(
             id=q.id,
             title=q.title,
-            subject=q.subject,
-            use=q.use,
+            subjects=q.subjects,
+            uses=q.uses,
             questions=q.questions,
             remark=q.remark,
             status=q.status,
@@ -161,8 +161,8 @@ async def update_questionnaire(
         return QuestionnaireResponse(
             id=updated.id,
             title=updated.title,
-            subject=updated.subject,
-            use=updated.use,
+            subjects=updated.subjects,
+            uses=updated.uses,
             questions=updated.questions,
             remark=updated.remark,
             status=updated.status,
@@ -208,8 +208,8 @@ async def get_questionnaires(
                 QuestionnaireResponse(
                     id=q.id,
                     title=q.title,
-                    subject=q.subject,
-                    use=q.use,
+                    subjects=q.subjects,
+                    uses=q.uses,
                     questions=q.questions,
                     remark=q.remark,
                     status=q.status,

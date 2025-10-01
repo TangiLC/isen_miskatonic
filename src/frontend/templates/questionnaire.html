@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user.isAuth %}
+<h2>Gestion des questionnaires</h2>
+
+<div class="button-info-container">
+    <div>
+        <button id="loadQuestionnaires" type="button">Recharger les questionnaires</button>
+    </div>
+    <div id="resultMessage"></div>
+</div>
+
+<div class="card-container">
+    <card class="scroll-card" id="scroll-card" style="display:none;">
+        <table id="questionnairesTable">
+            <thead>
+                <tr>
+                    <th id="id">ID</th>
+                    <th id="title">Titre</th>
+                    <th id="subject">Sujets</th>
+                    <th id="use">Usages</th>
+                    <th id="count">Nb Lignes</th>
+                    <th id="author">Créé par</th>
+                    <th id="date">Dates</th>
+                    <th id="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </card>
+</div>
+
+{% else %}
+<h1>Vous n'avez pas les droits.</h1>
+<p>Login ou mot de passe incorrect.</p>
+{% endif %}
+
+<script>
+    window.APP_CONFIG = {
+        token: "{{ token }}",
+        apiUrl: "http://localhost:8000/api",
+        userId: "{{ user.id }}",
+        currentQuestionnaireId: "{{ current_questionnaire_id }}"
+    };
+</script>
+
+<script type="module" src="{{ url_for('static', filename='scripts/questionnaire/index.js' )}}"></script>
+{% endblock content %}

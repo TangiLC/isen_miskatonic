@@ -1,0 +1,100 @@
+<div id="questionnaire-modal" style="display:none">
+    <div class="card-container">
+        <card class="questionnaire-detail" id="questionnaire-detail">
+            <div class="question-title">
+                <h2 style="margin:0;">Création d'un nouveau questionnaire</h2>
+                <button id="qn-close-btn" type="button" aria-label="Fermer la fenêtre" title="Fermer">
+                    <img src="{{ url_for('static', filename='assets/icon-close.svg')}}">
+                </button>
+            </div>
+
+            <!-- Titre du questionnaire -->
+            <div class="q-question">
+                <label for="qn-title-input">Titre</label>
+                <input id="qn-title-input" type="text" name="title" placeholder="Saisir le titre du questionnaire"
+                    required />
+            </div>
+
+            <!-- Sujets (texte fixe en mode view/edit) -->
+            <div class="q-subject">
+                <label for="qn-subject-display">Sujets</label>
+                <div class="q-row">
+                    <select id="qn-subject-select" multiple size="4" aria-label="Subjects"></select>
+                    <div class="q-adder">
+                        <input id="qn-subject-add" type="text" placeholder="Ajouter un sujet..." />
+                        <button type="button" id="qn-subject-add-btn">Ajouter un sujet</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usages (texte fixe en mode view/edit) -->
+            <div class="q-use">
+                <label for="qn-use-display">Usages</label>
+                <div class="q-row">
+                    <select id="qn-use-select" multiple size="4" aria-label="Uses"></select>
+                    <div class="q-adder">
+                        <input id="qn-use-add" type="text" placeholder="Ajouter un usage..." />
+                        <button type="button" id="qn-use-add-btn">Ajouter un usage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des questions -->
+            <div class="q-responses">
+                <div class="responses-header">
+                    <label>Questions du questionnaire</label>
+                    <button type="button" id="add-question-to-qn-btn" title="Ajouter une question">
+                        <img src="{{ url_for('static', filename='assets/icon-add.svg')}}" alt="Ajouter">
+                    </button>
+                </div>
+                <div id="questionnaire-questions-list" class="responses-list">
+                    <!-- Les questions seront ajoutées dynamiquement ici -->
+                </div>
+            </div>
+
+            <!-- Template pour une ligne de question -->
+            <template id="questionnaire-question-row-tpl">
+                <div class="response-row">
+                    <input type="text" class="question-id-input" readonly placeholder="ID" />
+                    <input type="text" class="question-text-input" readonly placeholder="Intitulé de la question" />
+                    <button type="button" class="remove-question" title="Retirer cette question">
+                        <img src="{{ url_for('static', filename='assets/icon-trash.svg')}}" alt="Supprimer">
+                    </button>
+                </div>
+            </template>
+
+            <!-- Remarque -->
+            <div class="q-remark">
+                <label for="qn-remark-input">Remarque</label>
+                <textarea id="qn-remark-input" name="remark" rows="3" placeholder="Remarque optionnelle..."></textarea>
+            </div>
+
+            <!-- Statut -->
+            <div class="q-status">
+                <label for="qn-status-select">Statut</label>
+                <select id="qn-status-select" name="status" required>
+                    <option value="draft">Brouillon</option>
+                    <option value="active">Actif</option>
+                    <option value="archive">Archivé</option>
+                </select>
+            </div>
+
+            <!-- Informations de création/modification -->
+            <div class="q-info">
+                <div>Créé par : <span id="qn-created-by">-</span></div>
+                <div>Créé le : <span id="qn-created-at">-</span></div>
+                <div>Modifié le : <span id="qn-edited-at">-</span></div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="q-buttons">
+                <button type="button" id="qn-reset-btn" class="secondary">Réinitialiser</button>
+                <button type="button" id="qn-submit-btn" class="primary">Enregistrer</button>
+            </div>
+
+            <!-- Message de feedback -->
+            <div id="qn-feedback" class="feedback"></div>
+
+        </card>
+    </div>
+</div>

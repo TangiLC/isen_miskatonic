@@ -110,8 +110,40 @@ def page_questions():
     if "token" not in session:
         return redirect(url_for("login"))
     utilisateur = Service.get_user_from_token(session["token"])
+    questionnaire_id = session.get("current_questionnaire_id")
+    print(f"current_questionnaire_id:{questionnaire_id}")
     utilisateur.isAuth
-    return render_template("question.html", user=utilisateur, token=session["token"])
+    return render_template(
+        "question.html",
+        user=utilisateur,
+        token=session["token"],
+        questionnaire_id=questionnaire_id,
+    )
+
+
+@app.route("/questionnaire")
+def page_questionnaire():
+    if "token" not in session:
+        return redirect(url_for("login"))
+    utilisateur = Service.get_user_from_token(session["token"])
+    current_id = session.get("current_questionnaire_id")
+    print(f"current_questionnaire_id:{current_id}")
+    utilisateur.isAuth
+    return render_template(
+        "questionnaire.html",
+        user=utilisateur,
+        token=session["token"],
+        current_questionnaire_id=current_id,
+    )
+
+
+@app.post("/api/questionnaire/<string:qid>/select")
+def select_questionnaire(qid):
+    if "token" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    session["current_questionnaire_id"] = qid
+    return jsonify({"success": True, "questionnaire_id": qid})
 
 
 @app.get("/api/users/<int:user_id>/name")

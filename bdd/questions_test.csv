@@ -1,0 +1,8 @@
+question,subject,use,correct,responseA,responseB,responseC,responseD,remark
+Une question test,Test,Test,D,random reponse,autre réponse,vrai,la réponse D,
+Une question test,Test,Test,D,random reponse,autre réponse,vrai,la réponse D,
+Une question à 7 réponses,Test,Test,"C, D",random reponse,autre réponse,vrai,la réponse D,
+Une question à 7 réponses,Test,Test,"A B",réponse vraie,autre réponse vraie,faux,,
+une autre question test,Test,Test,D,random reponse,autre réponse,vrai,la réponse D,
+une autre question test?,Test,Test,D,random reponse,autre réponse,vrai,la réponse D,
+

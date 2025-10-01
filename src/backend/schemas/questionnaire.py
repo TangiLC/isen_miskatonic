@@ -2,7 +2,7 @@ from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-from models.questionnaire import QuestionnaireStatus
+from models.questionnaire import QItem, QUpdate, QuestionnaireStatus
 
 
 class QuestionnaireCreate(BaseModel):
@@ -11,12 +11,14 @@ class QuestionnaireCreate(BaseModel):
     """
 
     title: str = Field(..., description="Titre du questionnaire.")
-    subject: Optional[List[str]] = Field(
+    subjects: Optional[List[str]] = Field(
         default=[], description="Sujets du questionnaire (tags)."
     )
-    use: Optional[List[str]] = Field(default=[], description="Contextes d'utilisation.")
-    questions: List[str] = Field(
-        default=[], description="Liste des IDs des questions du questionnaire."
+    uses: Optional[List[str]] = Field(
+        default=[], description="Contextes d'utilisation."
+    )
+    questions: List[QItem] = Field(
+        default=[], description="Liste des objets représentant les questions."
     )
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
     status: Optional[QuestionnaireStatus] = Field(
@@ -31,12 +33,14 @@ class QuestionnaireResponse(BaseModel):
 
     id: str = Field(..., description="Identifiant MongoDB généré automatiquement.")
     title: str = Field(..., description="Titre du questionnaire.")
-    subject: Optional[List[str]] = Field(
+    subjects: Optional[List[str]] = Field(
         default=[], description="Sujets du questionnaire (tags)."
     )
-    use: Optional[List[str]] = Field(default=[], description="Contextes d'utilisation.")
-    questions: List[str] = Field(
-        default=[], description="Liste des IDs des questions du questionnaire."
+    uses: Optional[List[str]] = Field(
+        default=[], description="Contextes d'utilisation."
+    )
+    questions: List[QItem] = Field(
+        default=[], description="Liste des questions du questionnaire {id,question}."
     )
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
     status: Optional[QuestionnaireStatus] = Field(
@@ -54,12 +58,12 @@ class QuestionnaireUpdate(BaseModel):
     """
 
     title: Optional[str] = Field(None, description="Titre du questionnaire.")
-    subject: Optional[List[str]] = Field(
+    subjects: Optional[List[str]] = Field(
         None, description="Sujets du questionnaire (tags)."
     )
-    use: Optional[List[str]] = Field(None, description="Contextes d'utilisation.")
-    questions: Optional[List[str]] = Field(
-        None, description="Liste des IDs des questions du questionnaire."
+    uses: Optional[List[str]] = Field(None, description="Contextes d'utilisation.")
+    questions: Optional[QUpdate] = Field(
+        None, description="Liste des questions à ajouter au questionnaire."
     )
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")
     status: Optional[QuestionnaireStatus] = Field(

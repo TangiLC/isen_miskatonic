@@ -41,8 +41,8 @@ class QuestionnaireService:
 
         questionnaire = Questionnaire(
             title=questionnaire_data.title,
-            subject=questionnaire_data.subject or [],
-            use=questionnaire_data.use or [],
+            subjects=questionnaire_data.subjects or [],
+            uses=questionnaire_data.uses or [],
             questions=questionnaire_data.questions or [],
             remark=questionnaire_data.remark,
             status=status,
@@ -83,15 +83,12 @@ class QuestionnaireService:
     ) -> Questionnaire:
         """
         Met à jour un questionnaire existant.
-
         Args:
             questionnaire_id: ID du questionnaire à modifier
             questionnaire_data: Données à mettre à jour
             user_id: ID de l'utilisateur qui fait la modification
-
         Returns:
             Questionnaire: Le questionnaire mis à jour
-
         Raises:
             LookupError: Si le questionnaire n'existe pas
             PermissionError: Si l'utilisateur n'est pas le créateur
@@ -115,7 +112,7 @@ class QuestionnaireService:
             microsecond=0
         )
 
-        # Effectuer la mise à jour
+        # Effectuer la mise à jour - écrasement de la liste antérieure des questions
         await self.repository.update_questionnaire(questionnaire_id, update_data)
 
         # Retourner le questionnaire mis à jour

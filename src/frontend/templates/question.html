@@ -2,6 +2,7 @@
 {% block content %}
 {% if user.isAuth %}
 <h2>Gestion des questions</h2>
+<p style="display:none">Questionnaire : {{questionnaire_id}}</p>
 <div class="button-info-container">
     <div>
         <button id="loadQ" type="button">Recharger les questions</button>
@@ -29,9 +30,10 @@
 
 <div class="button-info-container">
     <div>
+        <p>Saisie des éléments d'une nouvelle question</p>
         <button id="createQ" type="button">Créer une nouvelle question</button>
     </div>
-    <div></div>
+    <div class="import-csv">{% include "upload_csv.html" %}</div>
 </div>
 {% include "question-modale.html" %}
 
@@ -105,8 +107,10 @@
     window.APP_CONFIG = {
         token: "{{ token }}",
         apiUrl: "http://localhost:8000/api",
-        userId: "{{ user.id }}"
+        userId: "{{ user.id }}",
+        questionnaireId: "{{ questionnaire_id }}"
     };
+    console.log("Questionnaire-id", questionnaireId)
 </script>
 <script src="{{ url_for('static', filename='scripts/table.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='scripts/question/index.js' )}}"></script>

@@ -37,8 +37,8 @@ class QuestionnaireRepository:
 
                 questionnaire_dict = {
                     "title": questionnaire.title,
-                    "subject": questionnaire.subject,
-                    "use": questionnaire.use,
+                    "subjects": questionnaire.subjects,
+                    "uses": questionnaire.uses,
                     "questions": questionnaire.questions,
                     "remark": questionnaire.remark,
                     "status": questionnaire.status,
@@ -84,8 +84,8 @@ class QuestionnaireRepository:
             return Questionnaire(
                 id=str(doc["_id"]),
                 title=doc.get("title"),
-                subject=doc.get("subject", []),
-                use=doc.get("use", []),
+                subjects=doc.get("subjects", []),
+                uses=doc.get("uses", []),
                 questions=doc.get("questions", []),
                 remark=doc.get("remark"),
                 status=doc.get("status") or "draft",
@@ -104,11 +104,9 @@ class QuestionnaireRepository:
     ) -> bool:
         """
         Met à jour un questionnaire en base de données MongoDB.
-
         Args:
             questionnaire_id: ID du questionnaire à modifier
             update_data: Dictionnaire des champs à mettre à jour
-
         Returns:
             bool: True si la mise à jour a réussi
         """
@@ -157,8 +155,8 @@ class QuestionnaireRepository:
                     Questionnaire(
                         id=str(doc["_id"]),
                         title=doc.get("title"),
-                        subject=doc.get("subject", []),
-                        use=doc.get("use", []),
+                        subjects=doc.get("subjects", []),
+                        uses=doc.get("uses", []),
                         questions=doc.get("questions", []),
                         remark=doc.get("remark"),
                         status=(doc.get("status") or "draft"),

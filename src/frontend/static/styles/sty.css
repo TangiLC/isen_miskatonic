@@ -5,6 +5,11 @@ body {
 	padding: 0;
 }
 
+input,
+select {
+	border-radius: 6px;
+}
+
 nav {
 	display: flex;
 	flex-direction: row;
@@ -254,31 +259,45 @@ p a:hover {
 	justify-content: space-around;
 }
 
-.button-info-container div {
+.button-info-container > div {
 	width: 45%;
 	padding: 0.3rem;
 	text-align: center;
 	justify-self: center;
 }
 
-#questionsTable {
+.import-csv {
+	margin-bottom: 1.1rem;
+	padding-top: 0.1rem;
+}
+
+.import-csv form {
+	padding: 0.6rem;
+}
+
+#questionsTable,
+#questionnairesTable {
 	width: 100%;
 	border-collapse: collapse;
 	table-layout: fixed;
 }
-#questionsTable thead {
+#questionsTable thead,
+#questionnairesTable thead {
 	position: sticky;
 	top: 0;
 	z-index: 2;
 	background-color: lightgray;
 }
-#questionsTable th {
+#questionsTable th,
+#questionnairesTable th {
 	text-align: center;
 }
-#questionsTable #id {
+#questionsTable #id,
+#questionnairesTable #id {
 	width: 6%;
 }
-#questionsTable #question {
+#questionsTable #question,
+#questionnairesTable #title {
 	width: 32%;
 }
 #questionsTable #subject {
@@ -294,24 +313,24 @@ p a:hover {
 #questionsTable #date {
 	width: 11%;
 }
-#questionsTable #actions {
+#questionsTable #actions,
+#questionnairesTable #actions {
 	width: 17%;
 }
 
 #questionsTable th,
-#questionsTable td {
+#questionsTable td,
+#questionnairesTable th,
+#questionnairesTable td {
 	border: 1px solid black;
 	padding: 0.25rem 0.5rem;
 	text-align: left;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-#loadQ {
-	margin: auto;
-	width: 50%;
-}
-
-#createQ {
+#loadQ,
+#createQ,
+#importQ {
 	margin: auto;
 	width: 50%;
 }

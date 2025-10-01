@@ -101,7 +101,7 @@ class CSVQuestionProcessor:
             return question
 
         standardized = question.strip()
-        if standardized.endswith(":"):
+        while standardized and standardized[-1] in ":?!.":
             standardized = standardized[:-1].strip()
 
         return standardized
