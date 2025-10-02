@@ -109,13 +109,10 @@ export class ModalManager {
       SelectManager.fillSelect(this.elements.useSelect, Array.isArray(data.use) ? [...new Set(data.use)] : []);
     }
 
-    // ✅ CORRECTION CRITIQUE : Charger les réponses AVANT de définir le statut
     const responses = Array.isArray(data.responses) ? data.responses : [];
     const corrects = Array.isArray(data.corrects) ? data.corrects : [];
     this.responseManager.populateResponses(responses, corrects, mode === 'view');
 
-    // ✅ CORRECTION : Statut défini APRÈS les réponses
-    // Cela permet à updateStatusOptions() de voir les réponses correctes déjà chargées
     if (this.elements.statusSelect) {
       const status = data.status || 'draft';
       this.elements.statusSelect.value = status;
@@ -125,8 +122,6 @@ export class ModalManager {
     this.setModalMode(mode, data);
     Utils.show(this.elements.modal);
     
-    // ✅ CORRECTION : Valider après que tout soit chargé
-    // Le setTimeout garantit que le DOM est à jour avant la validation
     setTimeout(() => {
       this.validator.updateStatusOptions();
       this.validator.validateForm();
@@ -141,9 +136,7 @@ export class ModalManager {
     this.setModalMode(mode);
 
     if (this.elements.modal) {
-      this.elements.modal.style.display = "inline-flex";
-      // ✅ CORRECTION : Ne plus appeler updateStatusOptions() ici
-      // Il sera appelé par populateModal() ou resetForm()
+      this.elements.modal.style.display = "";
       setTimeout(() => {
         this.validator.validateForm();
       }, 0);

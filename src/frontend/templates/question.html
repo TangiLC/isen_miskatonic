@@ -2,13 +2,16 @@
 {% block content %}
 {% if user.isAuth %}
 <h2>Gestion des questions</h2>
-<p style="display:none">Questionnaire : {{questionnaire_id}}</p>
+
+<!-- Boutons de contrôle du tableau -->
 <div class="button-info-container">
     <div>
         <button id="loadQ" type="button">Recharger les questions</button>
     </div>
     <div id="resultMessage"></div>
 </div>
+
+<!-- Tableau des questions -->
 <div class="card-container">
     <card class="scroll-card" id="scroll-card" style="display:none;">
         <table id="questionsTable">
@@ -28,6 +31,7 @@
     </card>
 </div>
 
+<!-- Boutons de création et import -->
 <div class="button-info-container">
     <div>
         <p>Saisie des éléments d'une nouvelle question</p>
@@ -35,68 +39,18 @@
     </div>
     <div class="import-csv">{% include "upload_csv.html" %}</div>
 </div>
-{% include "question-modale.html" %}
 
-<div class="q-use">
-    <label for="q-use-select">Usages</label>
-    <div class="q-row">
-        <select id="q-use-select" multiple size="4" aria-label="Uses"></select>
-        <div class="q-adder">
-            <input id="q-use-add" type="text" placeholder="Ajouter un usage..." />
-            <button type="button" id="q-use-add-btn">Ajouter un usage</button>
-        </div>
-    </div>
-</div>
-
-<div class="q-remark">
-    <label for="q-remark-input">Remarque</label>
-    <input type="txt" id="q-remark-input" name="remark" placeholder="Optionnel"></input>
-</div>
-
-<div class="q-info">
-    <div>Créé par :{{user.name}}</div>
-    <div>Créé le :</div>
-    <div>Modifié le :</div>
+<!-- Boutons de création et import -->
+<div class="button-info-container">
     <div>
-        <label for="q-status-select">Statut</label>
-        <select id="q-status-select" name="status">
-            <option value="draft" selected>Brouillon</option>
-            <option value="active">Actif</option>
-            <option value="archive">Archivé</option>
-        </select>
+        <p id="QR-info">Questionnaire selectionné : {{questionnaire_id}}</p>
+        <button id="selectQR" type="button">Choisir un questionnaire</button>
     </div>
+    <div>{% include "questionnaire-detail.html" %}</div>
 </div>
 
-<div class="q-response">
-    <div class="responses-header">
-        <span>Réponses</span>
-
-    </div>
-    <div id="responses-list"></div>
-    <template id="response-row-tpl">
-        <div class="response-row">
-            <input type="text" class="response-input" placeholder="Réponse..." />
-            <label class="correct-flag">
-                <input type="checkbox" class="response-correct" />
-                Correcte
-            </label>
-            <button type="button" class="remove-response">
-                <img src="{{ url_for('static', filename='assets/icon-trash.svg')}}"></button>
-        </div>
-    </template>
-    <div class="response-row">
-        <button type="button" id="add-response-btn" class="response-input">
-            Ajouter une réponse</button>
-    </div>
-</div>
-
-<div class="q-buttons">
-    <button type="button" id="submit-btn">Enregistrer</button>
-    <button type="button" id="reset-btn" class="secondary">Réinitialiser</button>
-</div>
-</card>
-</div>
-</div>
+<!-- Modal (contient TOUT le formulaire) -->
+{% include "question-modale.html" %}
 
 {% else %}
 <h1>Vous n'avez pas les droits.</h1>
@@ -110,8 +64,26 @@
         userId: "{{ user.id }}",
         questionnaireId: "{{ questionnaire_id }}"
     };
-    console.log("Questionnaire-id", questionnaireId)
 </script>
 <script src="{{ url_for('static', filename='scripts/table.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='scripts/question/index.js' )}}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const qrInfo = document.getElementById('QR-info');
+        const selectQRBtn = document.getElementById('selectQR');
+        const questionnaireId = window.APP_CONFIG.questionnaireId;
+        if (!questionnaireId || questionnaireId === 'null' || questionnaireId === 'None' || questionnaireId === '') {
+            qrInfo.textContent = 'Aucun questionnaire sélectionné';
+            selectQRBtn.textContent = 'Choisir un questionnaire';
+        } else {
+            qrInfo.textContent = `Questionnaire selectionné : ${questionnaireId}`;
+            selectQRBtn.textContent = 'Changer de questionnaire';
+        }
+
+        selectQRBtn.addEventListener('click', function () {
+            window.location.href = '/questionnaire';
+        });
+    });
+</script>
 {% endblock content %}

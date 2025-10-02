@@ -1,70 +1,36 @@
-// index.js - Point d'entrée principal pour l'application Question Manager
-// Ce fichier centralise tous les imports et initialise l'application
+import { QuestionManager } from './question-manager.js'
 
-import { QuestionManager } from './question-manager.js';
-import { Utils } from './utils.js';
-import { ApiService } from './api-service.js';
-import { SelectManager } from './select-manager.js';
-import { ResponseManager } from './response-manager.js';
-import { FormValidator } from './form-validator.js';
-import { ModalManager } from './modal-manager.js';
+let questionManagerInstance = null
 
-// Exposition globale des classes pour débogage et intégration
-window.QuestionManagerModules = {
-  QuestionManager,
-  Utils,
-  ApiService,
-  SelectManager,
-  ResponseManager,
-  FormValidator,
-  ModalManager
-};
+function initializeQuestionManager () {
+  const isQuestionPage =
+    document.getElementById('question-detail') ||
+    document.getElementById('question-modal')
 
-// Instance principale
-let questionManagerInstance = null;
-
-// Fonctions globales pour la compatibilité avec le code existant
-window.see_details = async function(id) {
-  if (questionManagerInstance) {
-    await questionManagerInstance.viewQuestion(id);
-  } else {
-    console.error('QuestionManager non initialisé');
+  if (!isQuestionPage) {
+    console.info(
+      'Page sans gestion de questions - QuestionManager non initialisé'
+    )
+    return
   }
-};
 
-window.edit_question = async function(id) {
-  if (questionManagerInstance) {
-    await questionManagerInstance.editQuestion(id);
-  } else {
-    console.error('QuestionManager non initialisé');
+  try {
+    questionManagerInstance = new QuestionManager()
+
+    window.questionManager = questionManagerInstance
+    console.log('QuestionManager initialisé avec succès')
+
+    window.see_details = id =>
+      questionManagerInstance.openQuestionModal(id, 'view')
+    window.edit_question = id =>
+      questionManagerInstance.openQuestionModal(id, 'edit')
+    window.add_to_quizz = id => questionManagerInstance.addQuestionToQuiz(id)
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation du QuestionManager:", error)
   }
-};
+}
 
-window.add_to_quizz = async function(id) {
-  if (questionManagerInstance) {
-    await questionManagerInstance.addQuestionToQuiz(id);
-  } else {
-    console.error('QuestionManager non initialisé');
-  }
-};
+document.addEventListener('DOMContentLoaded', initializeQuestionManager)
 
-// Initialisation automatique
-document.addEventListener("DOMContentLoaded", () => {
-  // Vérifier qu'on est sur la bonne page
-  if (document.getElementById("question-detail") || document.getElementById("question-modal")) {
-    try {
-      questionManagerInstance = new QuestionManager();
-
-      // Exposer l'instance globalement pour débogage/intégration
-      window.questionManager = questionManagerInstance;
-      
-      console.log('QuestionManager initialisé avec succès');
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation du QuestionManager:', error);
-    }
-  }
-});
-
-// Export pour usage en tant que module
-export { QuestionManager };
-export default QuestionManager;
+export { QuestionManager }
+export default QuestionManager

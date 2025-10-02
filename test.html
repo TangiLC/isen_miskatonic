@@ -1,0 +1,135 @@
+<div class="card-container">
+    <card class="question-detail" id="question-detail">
+        <!-- En-tête avec titre et bouton fermer -->
+        <div class="question-title">
+            <h2 style="margin:0;">Détail de la question 68cbbccad2328ce8515cf3a2</h2>
+            <button id="q-close-btn" type="button" aria-label="Fermer la fenêtre" title="Fermer">
+                <img src="/static/assets/icon-close.svg">
+            </button>
+        </div>
+
+        <!-- Intitulé de la question -->
+        <div class="q-question">
+            <label for="q-question-input">Intitulé</label>
+            <input id="q-question-input" type="text" name="question" placeholder="Saisir la question" required=""
+                readonly="">
+        </div>
+
+        <!-- Sujets (select multiple + ajout) -->
+        <div class="q-subject">
+            <label for="q-subject-select">Sujets</label>
+            <div class="q-row">
+                <select id="q-subject-select" multiple="" size="4" aria-label="Subjects" disabled="">
+                    <option value="BDD">BDD</option>
+                </select>
+                <div class="q-adder" style="display: none;">
+                    <input id="q-subject-add" type="text" placeholder="Ajouter un sujet..." readonly="">
+                    <button type="button" id="q-subject-add-btn">Ajouter un sujet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usages (select multiple + ajout) -->
+        <div class="q-use">
+            <label for="q-use-select">Usages</label>
+            <div class="q-row">
+                <select id="q-use-select" multiple="" size="4" aria-label="Uses" disabled="">
+                    <option value="Test de positionnement">Test de positionnement</option>
+                </select>
+                <div class="q-adder" style="display: none;">
+                    <input id="q-use-add" type="text" placeholder="Ajouter un usage..." readonly="">
+                    <button type="button" id="q-use-add-btn">Ajouter un usage</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remarque -->
+        <div class="q-remark">
+            <label for="q-remark-input">Remarque</label>
+            <input type="text" id="q-remark-input" name="remark" placeholder="Optionnel" readonly="">
+        </div>
+
+        <!-- Informations (créateur, dates, statut) -->
+        <div class="q-info">
+            <div>Créé par : Lucas</div>
+            <div>Créé le : 18/09/2025 08:03:22</div>
+            <div>Modifié le : 29/09/2025 21:17:20</div>
+            <div>
+                <label for="q-status-select">Statut</label>
+                <select id="q-status-select" name="status" disabled="">
+                    <option value="draft" selected="">Brouillon</option>
+                    <option value="active">Actif</option>
+                    <option value="archive">Archivé</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Réponses (liste dynamique) -->
+        <div class="q-response">
+            <div class="responses-header">
+                <span>Réponses</span>
+            </div>
+            <div id="responses-list">
+                <div class="response-row correct">
+                    <input type="text" class="response-input" placeholder="Réponse..." readonly="">
+                    <label class="correct-flag">
+                        <input type="checkbox" class="response-correct" disabled="" readonly="">
+                        Correcte
+                    </label>
+                    <button type="button" class="remove-response" style="visibility: hidden;" disabled="">
+                        <img src="/static/assets/icon-trash.svg">
+                    </button>
+                </div>
+                <div class="response-row">
+                    <input type="text" class="response-input" placeholder="Réponse..." readonly="">
+                    <label class="correct-flag">
+                        <input type="checkbox" class="response-correct" disabled="" readonly="">
+                        Correcte
+                    </label>
+                    <button type="button" class="remove-response" style="visibility: hidden;" disabled="">
+                        <img src="/static/assets/icon-trash.svg">
+                    </button>
+                </div>
+                <div class="response-row">
+                    <input type="text" class="response-input" placeholder="Réponse..." readonly="">
+                    <label class="correct-flag">
+                        <input type="checkbox" class="response-correct" disabled="" readonly="">
+                        Correcte
+                    </label>
+                    <button type="button" class="remove-response" style="visibility: hidden;" disabled="">
+                        <img src="/static/assets/icon-trash.svg">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Template pour les lignes de réponse -->
+            <template id="response-row-tpl">
+                <div class="response-row">
+                    <input type="text" class="response-input" placeholder="Réponse...">
+                    <label class="correct-flag">
+                        <input type="checkbox" class="response-correct">
+                        Correcte
+                    </label>
+                    <button type="button" class="remove-response">
+                        <img src="/static/assets/icon-trash.svg">
+                    </button>
+                </div>
+            </template>
+
+            <!-- Bouton d'ajout de réponse -->
+            <div class="response-row">
+                <button type="button" id="add-response-btn" class="response-input" style="visibility: hidden;"
+                    disabled="">
+                    Ajouter une réponse
+                </button>
+            </div>
+        </div>
+
+        <!-- Boutons d'action (enregistrer/réinitialiser) -->
+        <div class="q-buttons">
+            <button type="button" id="submit-btn" style="display: none;">Enregistrer</button>
+            <button type="button" id="reset-btn" class="secondary" style="display: none;"
+                disabled="">Réinitialiser</button>
+        </div>
+    </card>
+</div>
