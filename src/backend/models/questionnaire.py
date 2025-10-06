@@ -15,6 +15,9 @@ class QuestionnaireStatus(str, Enum):
 class QItem(BaseModel):
     id: str
     question: str
+    corrects: Optional[List[str]] = None
+    responses: Optional[List[str]] = None
+    remark: Optional[str] = None
 
 
 class QUpdate(BaseModel):

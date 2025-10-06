@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Questionnaire</h1>
+<div class="button-info-container w70">
+    <div class="questionnaire-selection">
+        <label>
+            Identifiant du questionnaire :
+            <input type="text" id="questionnaire-id-input" placeholder="Saisissez l'identifiant du questionnaire" {% if
+                current_questionnaire_id and current_questionnaire_id !='None' %} value="{{ current_questionnaire_id }}"
+                {% endif %} />
+        </label>
+    </div>
+    <div>
+        <button id="submitQRid" type="button">
+            Valider l'identifiant
+        </button>
+    </div>
+</div>
+<div id="questionnaire-id-message"></div>
+
+
+
+<h2>Instructions</h2>
+<p class="instructions">Choisissez la bonne réponse parmi les propositions. Cliquez sur "Valider mes réponses" pour voir
+    votre score.</p>
+<p class="instructions">Note: Certaines questions peuvent avoir plusieurs bonnes réponses.</p>
+
+<h4>BON COURAGE !</h4>
+
+<div id="quiz-container"></div>
+<div class="button-info-container">
+    <div></div>
+    <div><button id="submit">Valider mes réponses</button></div>
+    <div></div>
+</div>
+<div id="result"></div>
+<div id="placeholder"></div>
+<script>
+
+    window.APP_CONFIG = {
+        token: "{{ token }}",
+        apiUrl: "http://localhost:8000/api",
+        questionnaireId: "{{ current_questionnaire_id if current_questionnaire_id and current_questionnaire_id != 'None' else '' }}"
+    };
+</script>
+
+<script>
+    // Gestion de l'input ID questionnaire
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('questionnaire-id-input');
+        const submitBtn = document.getElementById('submitQRid');
+        const message = document.getElementById('questionnaire-id-message');
+
+        const storedId = sessionStorage.getItem('current_questionnaire_id');
+        if (storedId && !input.value) {
+            input.value = storedId;
+            //input.disabled = true;
+            //submitBtn.disabled = true;
+            message.textContent = 'Questionnaire chargé depuis la session';
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const questionnaireId = input.value.trim();
+
+            if (!questionnaireId) {
+                message.textContent = 'Veuillez saisir un identifiant';
+                return;
+            }
+
+            sessionStorage.setItem('current_questionnaire_id', questionnaireId);
+
+            //input.disabled = true;
+            //submitBtn.disabled = true;
+
+            message.textContent = 'Identifiant enregistré';
+
+        });
+    });
+</script>
+
+<script type="module" src="{{ url_for('static', filename='scripts/quizz.js' )}}"></script>
+{% endblock content %}

@@ -145,10 +145,15 @@ class TableManager {
   }
 
   handleAddToQuiz (question) {
-    if (typeof add_to_quizz === 'function') {
-      add_to_quizz(id)
+    // Utiliser le composant questionnaireDetail pour ajouter la question
+    if (window.questionnaireDetail) {
+      window.questionnaireDetail.addQuestion(question.id)
     } else {
-      console.error('Fonction add_to_quizz non trouvée')
+      console.error('Module questionnaireDetail non disponible')
+      this.showMessage(
+        "Impossible d'ajouter la question au questionnaire",
+        'error'
+      )
     }
   }
 
@@ -285,5 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Vérifier qu'on est sur la bonne page
   if (document.getElementById('questionsTable')) {
     window.tableManager = new TableManager()
+    window.tableManager.loadQuestions()
   }
 })

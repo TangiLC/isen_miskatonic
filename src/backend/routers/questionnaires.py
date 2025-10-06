@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
@@ -75,39 +76,20 @@ async def create_questionnaire(
         )
 
 
-@router.get(
-    "/api/questionnaire/{id}",
-    response_model=QuestionnaireResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Récupérer un questionnaire par ID",
-    description="Retourne le questionnaire correspondant à l'id. Route sécurisée JWT.",
-    responses={
-        200: {"description": "Questionnaire trouvé", "model": QuestionnaireResponse},
-        400: {"description": "ID invalide"},
-        401: {"description": "Token d'authentification requis"},
-        404: {"description": "Questionnaire introuvable"},
-        500: {"description": "Erreur interne"},
-    },
-    tags=["Questionnaires"],
-)
+class QuestionnaireFormat(str, Enum):
+    short = "short"
+    full = "full"
+
+
+@router.get("/api/questionnaire/{id}/{format}", response_model=QuestionnaireResponse)
 async def get_questionnaire(
-    id: str = Path(..., description="Identifiant MongoDB du questionnaire"),
+    id: str,
+    format: QuestionnaireFormat,
     current_user: User = Depends(get_current_user),
 ) -> QuestionnaireResponse:
     try:
-        q = await questionnaire_service.get_questionnaire_by_id(id)
-
-        return QuestionnaireResponse(
-            id=q.id,
-            title=q.title,
-            subjects=q.subjects,
-            uses=q.uses,
-            questions=q.questions,
-            remark=q.remark,
-            status=q.status,
-            created_by=q.created_by,
-            created_at=q.created_at,
-            edited_at=q.edited_at,
+        return await questionnaire_service.get_questionnaire_by_id(
+            id, format=format.value
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

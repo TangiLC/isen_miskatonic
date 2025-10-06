@@ -330,14 +330,11 @@ class QuestionnaireManager {
 
       if (response.status === 201) {
         this.showMessage('Questionnaire créé avec succès', 'success')
-
-        // Rafraîchir le tableau
         await this.refreshTable()
 
         return { success: true, data: body }
       }
 
-      // Gestion des erreurs
       const errorMessages = {
         401: 'Authentification requise ou token invalide/expiré.',
         409: 'Conflit lors de la création (doublon possible).',
@@ -367,7 +364,6 @@ class QuestionnaireManager {
       )
     }
 
-    // Écoute des événements personnalisés pour les actions externes
     window.addEventListener('questionnaire:refresh', () => {
       this.refreshTable()
     })
@@ -388,11 +384,6 @@ class QuestionnaireManager {
   // Initialisation
   init () {
     this.setupEventListeners()
-
-    // Auto-chargement si configuré
-    if (this.config.autoLoad) {
-      this.loadQuestionnaires()
-    }
   }
 }
 
@@ -401,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Vérifier qu'on est sur la bonne page
   if (document.getElementById('questionnairesTable')) {
     window.questionnaireManager = new QuestionnaireManager()
+    window.questionnaireManager.loadQuestionnaires()
   }
 })
 

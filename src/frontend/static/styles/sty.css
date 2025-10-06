@@ -10,6 +10,29 @@ select {
 	border-radius: 6px;
 }
 
+#questionnaire-id-input {
+	padding: 0.3rem;
+	width: 40%;
+	font-size: 0.9rem;
+}
+
+main {
+	margin-bottom: 1.8rem;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: #222;
+	color: white;
+	text-align: center;
+	padding: 0.3rem;
+	z-index: 100;
+	flex: 1;
+}
+
 nav {
 	display: flex;
 	flex-direction: row;
@@ -142,6 +165,11 @@ button:hover {
 	background-color: #218838;
 }
 
+button:disabled {
+	background-color: lightgray;
+	cursor: not-allowed;
+}
+
 /* Bouton toggle pour confidentialité */
 .toggle-btn {
 	background-color: #007bff;
@@ -240,6 +268,14 @@ p a:hover {
 	margin: 1rem auto;
 }
 
+.col-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 1rem auto;
+	width: 100%;
+}
+
 .scroll-card {
 	display: inline-block;
 	margin: auto;
@@ -257,6 +293,26 @@ p a:hover {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
+	margin: auto;
+}
+
+.copy-button {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	width: 90%;
+	padding: 0.7rem;
+	margin: 0.4rem auto;
+	background-color: #28a745;
+	border-radius: 5px;
+	color: white;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.copy-button.copied {
+	color: #28a745;
+	background-color: white;
 }
 
 .button-info-container > div {
@@ -264,6 +320,7 @@ p a:hover {
 	padding: 0.3rem;
 	text-align: center;
 	justify-self: center;
+	margin: auto;
 }
 
 .import-csv {
@@ -276,27 +333,32 @@ p a:hover {
 }
 
 #questionsTable,
+#questionnairesTable,
 #questionnairesTable {
 	width: 100%;
 	border-collapse: collapse;
 	table-layout: fixed;
 }
 #questionsTable thead,
-#questionnairesTable thead {
+#questionnairesTable thead,
+#questionnaireTable thead {
 	position: sticky;
 	top: 0;
 	z-index: 2;
 	background-color: lightgray;
 }
 #questionsTable th,
-#questionnairesTable th {
+#questionnairesTable th,
+#questionnaireTable th {
 	text-align: center;
 }
 #questionsTable #id,
-#questionnairesTable #id {
+#questionnairesTable #id,
+#questionnaireTable th {
 	width: 6%;
 }
 #questionsTable #question,
+#questionnaireTable #question,
 #questionnairesTable #title {
 	width: 32%;
 }
@@ -332,7 +394,8 @@ p a:hover {
 #loadQR,
 #createQ,
 #importQ,
-#selectQR {
+#selectQR,
+#submitQRid {
 	margin: auto;
 	width: 50%;
 }
@@ -348,6 +411,11 @@ p a:hover {
 .action-icon-btn:disabled {
 	background-color: #ccc;
 	color: #666;
+}
+
+.action-icon-btn.delete {
+	background-color: #c00;
+	color: darkred;
 }
 
 #question-modal {
@@ -494,4 +562,67 @@ p a:hover {
 .meta-item {
 	display: flex;
 	flex-direction: row;
+}
+
+#placeholder {
+	height: 3rem;
+}
+
+.w70 {
+	width: 70%;
+}
+
+.instructions {
+	text-align: center;
+	margin: 0.5rem auto;
+	max-width: 80%;
+}
+
+h4 {
+	text-align: center;
+	color: #2ef706;
+	display: block;
+}
+
+#quiz-container {
+	margin: 20px auto;
+	padding: 20px;
+	background: white;
+	border-radius: 8px;
+	max-width: 70%;
+	box-shadow: 0 0 20px rgb(24, 252, 3);
+}
+
+.question {
+	margin-bottom: 20px;
+	color: rgb(13, 13, 14);
+}
+
+.options label {
+	display: block;
+	margin: 5px 0;
+}
+
+#submit:hover {
+	background: #27ae60;
+	color: white;
+}
+
+#result {
+	text-align: center;
+	margin-top: 20px;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+/* Réponse fausse */
+.wrong {
+	color: red;
+	font-weight: bold;
+}
+
+/* Réponse correcte */
+.correct {
+	color: green;
+	font-weight: bold;
 }

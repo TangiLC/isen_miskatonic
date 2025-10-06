@@ -194,8 +194,22 @@ class Service(Connection):
             cls.close()
 
     @staticmethod
-    def get_user_from_token(token):
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        payload["password"] = "****"
-        payload["isAuth"] = True
-        return User.model_validate(payload)
+    def get_user_from_token(token: str) -> Optional[User]:
+        """
+        Décode et valide le token JWT.
+        Retourne None si le token est invalide ou expiré.
+        """
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+            payload["password"] = "****"
+            payload["isAuth"] = True
+            return User.model_validate(payload)
+        except jwt.ExpiredSignatureError:
+            print("Token expiré")
+            return None
+        except jwt.InvalidTokenError as e:
+            print(f"Token invalide: {e}")
+            return None
+        except Exception as e:
+            print(f"Erreur lors du décodage du token: {e}")
+            return None

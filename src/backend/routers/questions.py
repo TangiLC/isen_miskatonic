@@ -292,7 +292,7 @@ async def update_question(
 
 
 @router.put(
-    "/api/question/import-csv",
+    "/api/questions/from_csv",
     response_model=CSVImportResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Importer des questions depuis un fichier CSV",

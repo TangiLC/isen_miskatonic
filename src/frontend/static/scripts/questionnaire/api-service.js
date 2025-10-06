@@ -53,7 +53,9 @@ export class QRApiService {
    * @returns {Promise<Object>} Le questionnaire
    */
   async fetchQuestionnaire (id) {
-    const url = `${this.config.apiUrl}/questionnaire/${encodeURIComponent(id)}`
+    const url = `${this.config.apiUrl}/questionnaire/${encodeURIComponent(
+      id
+    )}/short`
     return this.fetchJSON(url)
   }
 

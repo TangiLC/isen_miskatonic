@@ -2,7 +2,11 @@ from datetime import datetime
 from typing import List
 from zoneinfo import ZoneInfo
 from models.questionnaire import Questionnaire, QuestionnaireStatus
-from schemas.questionnaire import QuestionnaireCreate, QuestionnaireUpdate
+from schemas.questionnaire import (
+    QuestionnaireCreate,
+    QuestionnaireResponse,
+    QuestionnaireUpdate,
+)
 from repositories.questionnaire_repository import QuestionnaireRepository
 
 
@@ -56,23 +60,42 @@ class QuestionnaireService:
         return questionnaire.model_copy(update={"id": generated_id})
 
     ################################################################################
-    async def get_questionnaire_by_id(self, questionnaire_id: str) -> Questionnaire:
+    async def get_questionnaire_by_id(
+        self,
+        questionnaire_id: str,
+        format: str = "short",
+    ) -> QuestionnaireResponse:
         """
         Retourne un questionnaire depuis son id MongoDB.
-
-        Args:
-            questionnaire_id: id
-
-        Returns:
-            Questionnaire: L'objet Questionnaire recherché
+        - format == "short": questions avec id et question uniquement
+        - format == "full": questions complètes avec tous les champs (corrects, responses, etc.)
         """
-        questionnaire = await self.repository.get_questionnaire_by_id(questionnaire_id)
+        if format == "short":
+            questionnaire = await self.repository.get_short_questionnaire_by_id(
+                questionnaire_id
+            )
+            if questionnaire is None:
+                raise LookupError("Questionnaire introuvable")
+            if not getattr(questionnaire, "status", None):
+                questionnaire.status = QuestionnaireStatus.DRAFT
+            return questionnaire
 
-        if questionnaire is None:
-            raise LookupError("Questionnaire introuvable")
-        if not getattr(questionnaire, "status", None):
-            questionnaire.status = QuestionnaireStatus.DRAFT
-        return questionnaire
+        elif format == "full":
+            questionnaire = await self.repository.get_full_questionnaire_by_id(
+                questionnaire_id
+            )
+            if questionnaire is None:
+                raise LookupError("Questionnaire introuvable")
+            if not getattr(questionnaire, "status", None):
+                questionnaire.status = QuestionnaireStatus.DRAFT
+            return questionnaire
+
+        else:
+            # Format non reconnu
+            print(f"Format non implémenté : {format}")
+            raise ValueError(
+                f"Format '{format}' non supporté. Utilisez 'short' ou 'full'."
+            )
 
     ################################################################################
     async def update_questionnaire(

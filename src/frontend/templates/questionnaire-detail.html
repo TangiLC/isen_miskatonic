@@ -1,5 +1,31 @@
-<div class="questionnaire-view-container">
-    <!-- En-tête du questionnaire -->
+<!-- Liste des questions dans un tableau -->
+<div class="col-container">
+    <div class="copy-button" title="copier l'id" data-qr-id="{{ questionnaire_id }}">
+        <div id="QR-info">Questionnaire selectionné : {{questionnaire_id}} </div>
+        <div>
+            <img src="{{ url_for('static', filename='assets/icon-check.svg') }}" alt="copier l'id">
+        </div>
+
+    </div>
+    <card class="scroll-card" id="questionnaire-questions-card" style="display:none">
+        <table id="questionnaireTable">
+            <thead>
+                <tr>
+                    <th id="number">N°</th>
+                    <th id="id">ID</th>
+                    <th id="question">Question</th>
+                    <th id="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </card>
+
+</div>
+
+<div class="questionnaire-header-container">
+    <button id="selectQR" type="button">Choisir un questionnaire</button>
     <header class="questionnaire-header">
         <h2 class="questionnaire-title">Titre</h2>
 
@@ -24,28 +50,53 @@
                 <span class="meta-value">*</span>
             </div>
         </div>
-
     </header>
-
-    <!-- Liste des questions dans un tableau -->
-    <div class="card-container">
-        <card class="scroll-card" id="questionnaire-questions-card">
-
-
-            <table id="questionnaireQuestionsTable">
-                <thead>
-                    <tr>
-                        <th id="number">#</th>
-                        <th id="id">ID</th>
-                        <th id="question">Question</th>
-                        <th id="actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </card>
-
-
+    <!-- Boutons d'action -->
+    <div id="qr-detail-actions" class="button-info-container">
+        <div>
+            <button id="qr-detail-cancel-btn" type="button" disabled style="width:70%">
+                Annuler les modifications
+            </button>
+        </div>
+        <div>
+            <button id="qr-detail-save-btn" type="button" disabled style="width:70%">
+                Valider les changements
+            </button>
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.querySelector(".copy-button");
+        if (!btn) return;
+
+        btn.addEventListener("click", () => {
+            const id = btn.dataset.qrId;
+            console.log("buttonidclick", id)
+            if (!id || id == "None") { window.location.href = '/questionnaire' }
+            else {
+                navigator.clipboard.writeText(id)
+                    .then(() => {
+                        btn.title = "ID copié !";
+                        btn.classList.add("copied");
+                        setTimeout(() => {
+                            btn.title = "copier l'id";
+                            btn.classList.remove("copied");
+                        }, 800);
+                    })
+                    .catch(err => console.error("Échec de la copie :", err));
+            }
+        });
+    });
+</script>
+<script>
+    const tableCard = document.getElementById("questionnaire-questions-card");
+    const tbody = tableCard.querySelector("tbody");
+
+    const observer = new MutationObserver(() => {
+        tableCard.style.display = tbody.children.length > 0 ? "" : "none";
+    });
+
+    observer.observe(tbody, { childList: true });
+</script>

@@ -14,6 +14,17 @@ app = Flask(
 app.secret_key = "session_cookie_secret_key"  # stockage cookie session
 
 
+# @app.before_request
+# def verify_token():
+#    public_routes = ["login", "register", "static"]
+#
+#    if request.endpoint not in public_routes:
+#        token = session.get("token")
+#        if not token or not Service.get_user_from_token(token):
+#            session.clear()
+#           return redirect(url_for("login"))
+
+
 @app.route("/")
 @app.route("/login")
 def login():
@@ -38,7 +49,7 @@ def authentifier():
         authenticated_user, token = Service.authentifier(utilisateur)
 
         if authenticated_user and token:
-            print("User OK:", authenticated_user, token)
+            # print("User OK:", authenticated_user, token)
             session["token"] = token
             session["user_id"] = authenticated_user.id
 
@@ -131,6 +142,22 @@ def page_questionnaire():
     utilisateur.isAuth
     return render_template(
         "questionnaire.html",
+        user=utilisateur,
+        token=session["token"],
+        current_questionnaire_id=current_id,
+    )
+
+
+@app.route("/quizz")
+def page_quizz():
+    if "token" not in session:
+        return redirect(url_for("login"))
+    utilisateur = Service.get_user_from_token(session["token"])
+    current_id = session.get("current_questionnaire_id")
+    print(f"current_questionnaire_id:{current_id}")
+    utilisateur.isAuth
+    return render_template(
+        "page_quizz.html",
         user=utilisateur,
         token=session["token"],
         current_questionnaire_id=current_id,

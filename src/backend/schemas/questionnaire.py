@@ -62,7 +62,7 @@ class QuestionnaireUpdate(BaseModel):
         None, description="Sujets du questionnaire (tags)."
     )
     uses: Optional[List[str]] = Field(None, description="Contextes d'utilisation.")
-    questions: Optional[QUpdate] = Field(
+    questions: Optional[List[QUpdate]] = Field(
         None, description="Liste des questions à ajouter au questionnaire."
     )
     remark: Optional[str] = Field(None, description="Remarque ou commentaire.")

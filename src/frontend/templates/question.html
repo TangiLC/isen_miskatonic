@@ -40,13 +40,12 @@
     <div class="import-csv">{% include "upload_csv.html" %}</div>
 </div>
 
+<h2>Détail du questionnaire sélectionné</h2>
 <!-- Boutons de création et import -->
 <div class="button-info-container">
-    <div>
-        <p id="QR-info">Questionnaire selectionné : {{questionnaire_id}}</p>
-        <button id="selectQR" type="button">Choisir un questionnaire</button>
-    </div>
-    <div>{% include "questionnaire-detail.html" %}</div>
+
+    {% include "questionnaire-detail.html" %}
+
 </div>
 
 <!-- Modal (contient TOUT le formulaire) -->
@@ -65,9 +64,10 @@
         questionnaireId: "{{ questionnaire_id }}"
     };
 </script>
+
 <script src="{{ url_for('static', filename='scripts/table.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='scripts/question/index.js' )}}"></script>
-
+<script type="module" src="{{ url_for('static', filename='scripts/questionnaire/questionnaire-detail.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const qrInfo = document.getElementById('QR-info');
