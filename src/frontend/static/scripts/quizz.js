@@ -72,6 +72,7 @@ class QuizManager {
 
       const questionnaire = await response.json()
       this.questions = questionnaire.questions || []
+      this.renderQuestionnaireInfo(questionnaire.title, questionnaire.remark)
 
       if (this.questions.length === 0) {
         this.showError('Ce questionnaire ne contient aucune question.')
@@ -102,6 +103,19 @@ class QuizManager {
     }
   }
 
+  renderQuestionnaireInfo (title, remark) {
+    const titleElement = document.getElementById('QRTitle')
+    const remarkElement = document.getElementById('QRRemark')
+
+    if (titleElement && title) {
+      titleElement.textContent = title
+    } else titleElement.textContent = 'Questionnaire'
+
+    if (remarkElement && remark) {
+      remarkElement.textContent = remark
+    }
+  }
+
   renderQuestions () {
     if (!this.elements.container) return
 
@@ -118,7 +132,6 @@ class QuizManager {
       const optionsDiv = document.createElement('div')
       optionsDiv.classList.add('options')
 
-      // Utiliser 'responses' de l'API (au lieu de 'options')
       const responses = q.responses || []
       responses.forEach(opt => {
         const label = document.createElement('label')
@@ -132,6 +145,12 @@ class QuizManager {
       })
 
       div.appendChild(optionsDiv)
+
+      const remarkDiv = document.createElement('div')
+      remarkDiv.classList.add('nodisplay', 'remark')
+      remarkDiv.textContent = q.remark ? q.remark : 'Pas de remarque'
+      div.appendChild(remarkDiv)
+
       this.elements.container.appendChild(div)
     })
   }
@@ -164,7 +183,6 @@ class QuizManager {
       )
       const selectedValues = Array.from(selected).map(input => input.value)
 
-      // Utiliser 'corrects' de l'API (au lieu de 'correct')
       const correctAnswers = q.corrects || []
       const isCorrect =
         selectedValues.length === correctAnswers.length &&
@@ -182,11 +200,31 @@ class QuizManager {
         } else if (input.checked) {
           label.classList.add('wrong') // mauvaise cochée -> rouge
         }
+        input.disabled = true
       })
     })
 
+    const remarkDivs = document.querySelectorAll('.remark')
+    remarkDivs.forEach(div => div.classList.remove('nodisplay'))
+
     if (this.elements.result) {
-      this.elements.result.textContent = `Score : ${score} / ${this.questions.length}`
+      let note = score / this.questions.length
+      this.elements.result.textContent = `Score :\n${score} / ${this.questions.length}`
+      this.elements.result.style.zIndex = 30
+      if (note < 0.3) {
+        this.elements.result.style.color = '#c00'
+        this.elements.result.style.border = '3px solid #c00'
+        this.elements.result.style.boxShadow = '0 0 30px rgba(255, 0, 0, 0.76)'
+      } else if (note < 0.6) {
+        this.elements.result.style.color = '#cc7f14'
+        this.elements.result.style.border = '3px solid #cc7f14'
+        this.elements.result.style.boxShadow =
+          '0 0 30px rgba(204, 127, 20, 0.76)'
+      } else {
+        this.elements.result.style.color = '#03cc00'
+        this.elements.result.style.border = '3px solid #03cc00'
+        this.elements.result.style.boxShadow = '0 0 30px rgba(3, 204, 0, 0.76)'
+      }
     }
   }
 }

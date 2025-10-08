@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if showLoginForm %}Connexion{% else %}Création de compte{% endif %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/sty.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 </head>
 
 <body>
@@ -73,7 +73,7 @@
 
         <div class="container confidentialite">
             <h3>Politique de confidentialité</h3>
-            <button class="toggle-btn" type="button">Voir la politique de confidentialité</button>
+            <button class="toggle-btn" type="button">Masquer la politique de confidentialité</button>
             <div id="privacy-content" class="content" style=`display:{% if not showLoginForm %}block{% else %}none{%
                 endif %};`>
                 <p>

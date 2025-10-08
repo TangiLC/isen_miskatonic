@@ -311,7 +311,7 @@
                 ]
             }
         },
-        "/api/subjects": {
+        "/api/questions/subjects": {
             "get": {
                 "tags": [
                     "Questions",

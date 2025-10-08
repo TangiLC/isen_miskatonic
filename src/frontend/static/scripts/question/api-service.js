@@ -77,10 +77,12 @@ export class QApiService {
 
     try {
       const [subjects, uses] = await Promise.all([
-        this.fetchJSON(`${this.config.apiUrl}/subjects`, {
+        this.fetchJSON(`${this.config.apiUrl}/questions/subjects`, {
           authenticated: false
         }),
-        this.fetchJSON(`${this.config.apiUrl}/uses`, { authenticated: false })
+        this.fetchJSON(`${this.config.apiUrl}/questions/uses`, {
+          authenticated: false
+        })
       ])
 
       return {

@@ -185,7 +185,7 @@ async def get_questions(
 
 
 @router.get(
-    "/api/subjects",
+    "/api/questions/subjects",
     response_model=List[str],
     status_code=status.HTTP_200_OK,
     summary="Lister les sujets",
@@ -207,7 +207,7 @@ async def get_subjects() -> List[str]:
 
 
 @router.get(
-    "/api/uses",
+    "/api/questions/uses",
     response_model=List[str],
     status_code=status.HTTP_200_OK,
     summary="Lister les usages",
@@ -225,6 +225,59 @@ async def get_uses() -> List[str]:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la récupération des usages: {e}",
+        )
+
+
+@router.get(
+    "/api/questions/subjects/{subject_name}",
+    response_model=List[QuestionResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Lister les questions par sujet",
+    description="Retourne les questions dont au moins un sujet contient {subject_name} (recherche insensible à la casse). Route sécurisée JWT.",
+    responses={
+        200: {"description": "Liste renvoyée avec succès"},
+        401: {"description": "Token d'authentification requis"},
+        500: {"description": "Erreur interne du serveur"},
+    },
+    tags=["Questions"],
+)
+async def get_questions_by_subject_name(
+    subject_name: str = Path(
+        ..., description="Sous-chaîne à rechercher dans les sujets"
+    ),
+    limit: int = Query(50, ge=1, le=200, description="Nombre maximum de résultats"),
+    current_user: User = Depends(get_current_user),
+) -> List[QuestionResponse]:
+    try:
+        user_role = (current_user.role).upper()
+        items = await question_service.get_questions_by_subject_contains(
+            subject_name, limit
+        )
+        results: List[QuestionResponse] = []
+        for q in items:
+            visible_corrects = []
+            if user_role in ["TEACHER", "ADMIN"]:
+                visible_corrects = q.corrects
+            results.append(
+                QuestionResponse(
+                    id=q.id,
+                    question=q.question,
+                    subject=q.subject,
+                    use=q.use,
+                    corrects=visible_corrects,
+                    responses=q.responses or [],
+                    remark=q.remark,
+                    status=q.status or "draft",
+                    created_by=q.created_by,
+                    created_at=q.created_at,
+                    edited_at=q.edited_at,
+                )
+            )
+        return results
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la recherche par sujet: {e}",
         )
 
 

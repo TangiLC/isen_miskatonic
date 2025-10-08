@@ -1,8 +1,10 @@
 from pathlib import Path
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from werkzeug.exceptions import HTTPException
 
 from services.services import Service
 from models.user import User
+from utils.decorators import require_roles
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -52,8 +54,24 @@ def authentifier():
             # print("User OK:", authenticated_user, token)
             session["token"] = token
             session["user_id"] = authenticated_user.id
-
-            return redirect(url_for("page_questions"))
+            session["current_questionnaire_id"] = None
+            role = (
+                authenticated_user.role.value
+                if hasattr(authenticated_user.role, "value")
+                else authenticated_user.role
+            ).upper()
+            if role in ("ADMIN", "TEACHER"):
+                return redirect(url_for("page_questions"))
+            elif role in ("STUDENT"):
+                return redirect(url_for("page_quizz"))
+            else:
+                return redirect(
+                    url_for(
+                        "page_error",
+                        code=403,
+                        message="Contacter un administrateur pour finaliser votre inscription",
+                    )
+                )
         else:
             error_message = "Login ou mot de passe incorrect."
             return render_template(
@@ -117,9 +135,8 @@ def creer_compte():
 
 
 @app.route("/questions")
+@require_roles("ADMIN", "TEACHER")
 def page_questions():
-    if "token" not in session:
-        return redirect(url_for("login"))
     utilisateur = Service.get_user_from_token(session["token"])
     questionnaire_id = session.get("current_questionnaire_id")
     print(f"current_questionnaire_id:{questionnaire_id}")
@@ -133,9 +150,8 @@ def page_questions():
 
 
 @app.route("/questionnaire")
+@require_roles("ADMIN", "TEACHER")
 def page_questionnaire():
-    if "token" not in session:
-        return redirect(url_for("login"))
     utilisateur = Service.get_user_from_token(session["token"])
     current_id = session.get("current_questionnaire_id")
     print(f"current_questionnaire_id:{current_id}")
@@ -183,7 +199,30 @@ def get_user_name(user_id):
 def logout():
     """Déconnecte l'utilisateur en nettoyant la session"""
     session.clear()
+    # session["current_questionnaire_id"] = ""
     return redirect(url_for("login"))
+
+
+@app.route("/error")
+def page_error():
+    """Affiche une page d'erreur générique"""
+    code = request.args.get("code", 404)
+    message = request.args.get("message", "Dead Link !")
+    return render_template("page_error.html", code=code, message=message)
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Capture toutes les erreurs et affiche la page_error.html"""
+    if isinstance(e, HTTPException):
+        return (
+            render_template("page_error.html", code=e.code, message=e.description),
+            e.code,
+        )
+    return (
+        render_template("page_error.html", code=500, message="erreur interne."),
+        500,
+    )
 
 
 if __name__ == "__main__":

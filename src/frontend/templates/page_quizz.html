@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Questionnaire</h1>
+<h1 id="QRTitle">Questionnaire</h1>
+<div id="QRRemark"></div>
 <div class="button-info-container w70">
     <div class="questionnaire-selection">
         <label>
             Identifiant du questionnaire :
             <input type="text" id="questionnaire-id-input" placeholder="Saisissez l'identifiant du questionnaire" {% if
                 current_questionnaire_id and current_questionnaire_id !='None' %} value="{{ current_questionnaire_id }}"
-                {% endif %} />
+                {% endif %} size="25" />
         </label>
     </div>
     <div>
@@ -16,24 +17,28 @@
         </button>
     </div>
 </div>
-<div id="questionnaire-id-message"></div>
+<div class="button-info-container w70">
+    <div id="questionnaire-id-message"></div>
+</div>
 
+<div class="quiz-container">
+    <h2>Instructions</h2>
+</div>
 
-
-<h2>Instructions</h2>
 <p class="instructions">Choisissez la bonne réponse parmi les propositions. Cliquez sur "Valider mes réponses" pour voir
     votre score.</p>
 <p class="instructions">Note: Certaines questions peuvent avoir plusieurs bonnes réponses.</p>
 
 <h4>BON COURAGE !</h4>
 
-<div id="quiz-container"></div>
+<div id="quiz-container" class="quiz-container"></div>
+<div id="result"></div>
 <div class="button-info-container">
     <div></div>
     <div><button id="submit">Valider mes réponses</button></div>
     <div></div>
 </div>
-<div id="result"></div>
+
 <div id="placeholder"></div>
 <script>
 
@@ -68,11 +73,7 @@
             }
 
             sessionStorage.setItem('current_questionnaire_id', questionnaireId);
-
-            //input.disabled = true;
-            //submitBtn.disabled = true;
-
-            message.textContent = 'Identifiant enregistré';
+            window.location.reload();
 
         });
     });

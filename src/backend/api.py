@@ -65,7 +65,7 @@ class QuizAPI:
         # Configuration CORS
         app.add_middleware(
             CORSMiddleware,
-            # allow_origins=["http://localhost:3000", "http://localhost:8080"],
+            # allow_origins=["http://localhost:5005", "http://localhost:8000"],
             allow_origins=["*"],
             allow_credentials=True,
             allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -127,33 +127,6 @@ class QuizAPI:
                 "docs": "/docs",
                 "database": "pymongo",
             }
-
-        @app.get("/health", summary="Vérification de l'état de santé", tags=["Système"])
-        async def health_check() -> Dict[str, Any]:
-            try:
-                is_connected = database.is_connected()
-                stats = database.get_collection_stats()
-
-                return {
-                    "status": "healthy" if is_connected else "unhealthy",
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "database": stats,
-                }
-            except Exception as e:
-                return {
-                    "status": "unhealthy",
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "error": str(e),
-                }
-
-        @app.get(
-            "/db-stats", summary="Statistiques de la base de données", tags=["Système"]
-        )
-        async def get_db_stats() -> Dict[str, Any]:
-            """
-            Retourne les statistiques détaillées de la base de données.
-            """
-            return database.get_collection_stats()
 
     def _setup_routers(self, app: FastAPI):
         """

@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Miskatonic{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/sty.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
 </head>
 
 <body>
@@ -15,22 +16,31 @@
             <div class="nav-logo">
                 <img src="{{ url_for('static', filename='assets/miskatonic.png') }}" alt="Miskatonic">
             </div>
+
+            {# Prépare l’endpoint courant côté serveur #}
+            {% set current = request.endpoint %}
+
             <div class="nav-group">
-                {% if user.role.name !="STUDENT"%}
+                {% if user.role.name != "STUDENT" %}
                 <a href="{{ url_for('page_questions') }}">
-                    <div class="nav-button">Gérer les questions</div>
+                    <div class="nav-button {{ 'active' if current == 'page_questions' else '' }}">Gérer les questions
+                    </div>
                 </a>
                 <a href="{{ url_for('page_questionnaire') }}">
-                    <div class="nav-button">Gérer les questionnaires</div>
-                </a>{% endif %}
+                    <div class="nav-button {{ 'active' if current == 'page_questionnaire' else '' }}">Gérer les
+                        questionnaires</div>
+                </a>
+                {% endif %}
                 <a href="{{ url_for('page_quizz') }}">
-                    <div class="nav-button">Afficher le questionnaire</div>
+                    <div class="nav-button {{ 'active' if current == 'page_quizz' else '' }}">Afficher le questionnaire
+                    </div>
                 </a>
             </div>
+
             <div class="nav-group">
-                <div class="nav-button" onclick="alert('Gestion de votre profil dans la V2')">{{ user.name }}
+                <div class="nav-button active" onclick="alert('Gestion de votre profil dans la V2')">{{ user.name }}
                     <div class="profil">
-                        {% if user.role.name =="STUDENT"%}
+                        {% if user.role.name == "STUDENT" %}
                         <img src="{{ url_for('static', filename='assets/bart.png') }}" alt="Élève">
                         {% elif user.role.name in ["TEACHER", "ADMIN"] %}
                         <img src="{{ url_for('static', filename='assets/krapabel.png') }}" alt="Professeur">
@@ -38,8 +48,10 @@
                     </div>
                 </div>
                 <a href="{{ url_for('logout') }}">
-                    <div class="nav-button"><img src="{{ url_for('static', filename='assets/icon-logout.svg')}}"
-                            title="logout" alt="logout"></div>
+                    <div class="nav-button active">
+                        <img src="{{ url_for('static', filename='assets/icon-logout.svg')}}" title="logout"
+                            alt="logout">
+                    </div>
                 </a>
             </div>
         </nav>
@@ -53,6 +65,27 @@
         <div>2025 - Miska LH-TLC</div>
         <div>Version MVP</div>
     </footer>
+
+    <script>
+        // Active immédiat au clic + vérification à l’arrivée sur la page
+        document.addEventListener('DOMContentLoaded', function () {
+            const here = window.location.pathname;
+
+            // Active selon l’URL actuelle (utile après redirection / rechargement)
+            document.querySelectorAll('nav a').forEach(a => {
+                const btn = a.querySelector('.nav-button');
+                if (!btn) return;
+                const linkPath = new URL(a.href, window.location.origin).pathname;
+                if (here === linkPath) btn.classList.add('active');
+
+                // Active visuellement dès le clic (avant navigation)
+                a.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-button').forEach(el => el.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

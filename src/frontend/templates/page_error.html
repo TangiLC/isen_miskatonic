@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Miskatonic{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+    <!-- Header commun -->
+    <header>
+        <nav>
+            <div class="nav-logo">
+                <img src="{{ url_for('static', filename='assets/miskatonic.png') }}" alt="Miskatonic">
+            </div>
+
+            <div class="nav-group">
+                <a href="{{ url_for('logout') }}">
+                    <div class="nav-button active">Erreur !
+                    </div>
+                </a>
+            </div>
+
+            <div class="nav-group">
+
+                <a href="{{ url_for('logout') }}">
+                    <div class="nav-button active">
+                        <img src="{{ url_for('static', filename='assets/icon-logout.svg')}}" title="logout"
+                            alt="logout">
+                    </div>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="col-container">
+            <div>
+                <h2>Un problème est survenu...</h2>
+                <div
+                    style="width:50%;margin:auto;height:35dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    <img src="{{ url_for('static', filename='assets/dead-link.png') }}" alt="Something went wrong"
+                        style="max-width:100%;max-height:100%;height:auto;width:auto;object-fit:contain;display:block;">
+                </div>
+            </div>
+            <div style="width:50%;margin:auto;text-align:center;">
+                <p>Erreur type :{{code}}</p>
+                <p>{{message}}</p>
+            </div>
+            <div style="width:50%;margin:auto;">
+                <button type="button" id="backBtn">Retour à la page précédente</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div>2025 - Miska LH-TLC</div>
+        <div>Version MVP</div>
+    </footer>
+
+</body>
+<script>
+    document.getElementById("backBtn").onclick = function () {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = "{{ url_for('logout') }}";
+        }
+    };
+</script>
+
+</html>

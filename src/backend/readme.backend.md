@@ -17,7 +17,7 @@ Organisation du répertoire `backend/` :
 
 ```
 backend/
-├─ main.py
+├─ api.py
 ├─ routers/
 │  └─ questions.py
 ├─ services/
@@ -33,10 +33,10 @@ backend/
 └─ tests/
 ```
 
-`main.py` crée l’application, configure CORS, gère le cycle de vie (startup/shutdown) et déclare les routes système.  
-`routers/questions.py` expose les routes HTTP liées aux questions.  
-`services/question_service.py` contient la logique métier.  
-`repositories/question_repository.py` réalise les accès MongoDB via PyMongo et convertit les documents en modèles.  
+`api.py` crée l’application, configure CORS, gère le cycle de vie (startup/shutdown) et déclare les routes système.  
+`routers` expose les routes HTTP liées aux questions et aux questionnaires.  
+`services` contient la logique métier.  
+`repositories` réalise les accès MongoDB via PyMongo et convertit les documents en modèles.  
 `models` et `schemas` définissent respectivement les objets internes et les schémas Pydantic exposés par l’API.
 
 ## 3. Prérequis
@@ -62,7 +62,7 @@ Les paramètres s’effectuent via des variables d’environnement et peuvent ê
 Lancement depuis `backend/` en conservant la structure de paquets :
 
 ```bash
-python3 main.py
+python3 api.py
 ```
 
 ## 7. Endpoints
@@ -73,15 +73,11 @@ Le projet est documenté avec OpenAPI/Swagger, qui peut être consulté sur `loc
 
 `GET /` retourne un message d’accueil, la version et le statut du service.
 
-`GET /health` renvoie l’état de santé et des informations de connectivité à MongoDB.
-
-`GET /db-stats` retourne des statistiques simples sur la collection principale. En cas de collection non initialisée ou d’erreur Mongo, la réponse indique `status: "error"` avec un message explicite.
-
 ### 7.2 Questions
 
 `GET /api/question?{id}` récupère une question par identifiant.
 
-## 11. Tests
+## 8. Tests
 
 Les tests unitaires et d’intégration peuvent être placés dans `backend/tests/`. Exemple d’exécution :
 

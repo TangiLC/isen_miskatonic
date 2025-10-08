@@ -99,6 +99,18 @@ class QuestionService:
         return await self.repository.get_distinct_uses()
 
     ################################################################################
+    async def get_questions_by_subject_contains(
+        self, subject_name: str, limit: int = 50
+    ) -> List[Question]:
+        """
+        Retourne les questions dont au moins un sujet contient ***.
+        """
+        return await self.repository.search_questions_by_subject_substring(
+            subject_name=subject_name, limit=limit
+        )
+
+    ################################################################################
+
     async def update_question(
         self, question_id: str, question_data: QuestionUpdate, user_id: int
     ) -> Question:
