@@ -434,7 +434,8 @@ p a:hover {
 	color: darkred;
 }
 
-#question-modal {
+#question-modal,
+#questionnaire-modal {
 	width: 100%;
 	height: 100%;
 	margin: auto;
@@ -445,7 +446,8 @@ p a:hover {
 	z-index: 300;
 	background-color: rgba(200, 200, 200, 0.3);
 }
-#question-modal .card-container {
+#question-modal .card-container,
+#questionnaire-modal .card-container {
 	border: 1px solid black;
 	background-color: rgba(240, 250, 240, 1);
 	border-radius: 6px;

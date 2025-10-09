@@ -1,4 +1,4 @@
-import { SelectManager } from '../question/select-manager'
+import { SelectManager } from '../utils/select-manager.js'
 
 export class QuestionnaireValidator {
   constructor (elements) {

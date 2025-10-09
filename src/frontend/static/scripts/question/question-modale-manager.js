@@ -1,9 +1,10 @@
-import { Utils } from '../question/utils.js'
-import { SelectManager } from '../question/select-manager.js'
+import { Utils } from '../utils/utils.js'
+import { SelectManager } from '../utils/select-manager.js'
 
-export class QuestionnaireModalManager {
-  constructor (elements, validator) {
+export class QuestionModalManager {
+  constructor (elements, responseManager, validator) {
     this.elements = elements
+    this.responseManager = responseManager
     this.validator = validator
     this.currentMode = null
   }
@@ -14,9 +15,9 @@ export class QuestionnaireModalManager {
     // Mise à jour du titre
     if (this.elements.modalTitle) {
       const titles = {
-        view: `Détail du questionnaire ${data.id || ''}`,
-        edit: `Modification du questionnaire ${data.id || ''}`,
-        create: "Création d'un nouveau questionnaire"
+        view: `Détail de la question ${data.id || ''}`,
+        edit: `Modification de la question ${data.id || ''}`,
+        create: "Création d'une nouvelle question"
       }
       this.elements.modalTitle.textContent = titles[mode] || titles.create
     }
@@ -42,6 +43,17 @@ export class QuestionnaireModalManager {
       }
     }
 
+    // Bouton d'ajout de réponse
+    if (this.elements.addResponseBtn) {
+      if (isReadonly) {
+        this.elements.addResponseBtn.disabled = true
+        this.elements.addResponseBtn.style.visibility = 'hidden'
+      } else {
+        this.elements.addResponseBtn.disabled = false
+        this.elements.addResponseBtn.style.visibility = 'visible'
+      }
+    }
+
     // Masquer les div q-adder en mode view
     const adderDivs = Utils.$$('.q-adder')
     adderDivs.forEach(div => {
@@ -58,8 +70,8 @@ export class QuestionnaireModalManager {
 
   populateModal (data, mode = 'view') {
     // Champs de base
-    if (this.elements.titleInput)
-      this.elements.titleInput.value = data.title || ''
+    if (this.elements.questionInput)
+      this.elements.questionInput.value = data.question || ''
     if (this.elements.remarkInput)
       this.elements.remarkInput.value = data.remark || ''
 
@@ -106,22 +118,26 @@ export class QuestionnaireModalManager {
     if (mode === 'view') {
       SelectManager.fillSelectViewOnly(
         this.elements.subjectSelect,
-        Array.isArray(data.subjects) ? [...new Set(data.subjects)] : []
+        Array.isArray(data.subject) ? [...new Set(data.subject)] : []
       )
       SelectManager.fillSelectViewOnly(
         this.elements.useSelect,
-        Array.isArray(data.uses) ? [...new Set(data.uses)] : []
+        Array.isArray(data.use) ? [...new Set(data.use)] : []
       )
     } else {
       SelectManager.fillSelect(
         this.elements.subjectSelect,
-        Array.isArray(data.subjects) ? [...new Set(data.subjects)] : []
+        Array.isArray(data.subject) ? [...new Set(data.subject)] : []
       )
       SelectManager.fillSelect(
         this.elements.useSelect,
-        Array.isArray(data.uses) ? [...new Set(data.uses)] : []
+        Array.isArray(data.use) ? [...new Set(data.use)] : []
       )
     }
+
+    const responses = Array.isArray(data.responses) ? data.responses : []
+    const corrects = Array.isArray(data.corrects) ? data.corrects : []
+    this.responseManager.populateResponses(responses, corrects, mode === 'view')
 
     if (this.elements.statusSelect) {
       const status = data.status || 'draft'
@@ -161,7 +177,7 @@ export class QuestionnaireModalManager {
   }
 
   resetForm () {
-    if (this.elements.titleInput) this.elements.titleInput.value = ''
+    if (this.elements.questionInput) this.elements.questionInput.value = ''
     if (this.elements.remarkInput) this.elements.remarkInput.value = ''
     if (this.elements.statusSelect) this.elements.statusSelect.value = 'draft'
     if (this.elements.infoSections && this.elements.infoSections[1]) {
@@ -176,20 +192,34 @@ export class QuestionnaireModalManager {
       }
     })
 
+    this.responseManager.clearResponses()
+    this.responseManager.addResponseRow()
+    this.responseManager.addResponseRow()
+
     this.validator.validateForm()
     this.validator.updateStatusOptions()
   }
 
   collectFormData () {
-    const title = this.elements.titleInput?.value.trim() || ''
+    const question = this.elements.questionInput?.value.trim() || ''
     const remark = this.elements.remarkInput?.value.trim() || ''
     const status = this.elements.statusSelect?.value || 'draft'
 
-    const subjects = SelectManager.collectMultiSelect(
+    const subject = SelectManager.collectMultiSelect(
       this.elements.subjectSelect
     )
-    const uses = SelectManager.collectMultiSelect(this.elements.useSelect)
+    const use = SelectManager.collectMultiSelect(this.elements.useSelect)
 
-    return { title, subjects, uses, remark, status, questions: [] }
+    const { responses, corrects } = this.responseManager.getResponsesData()
+
+    return { question, subject, use, remark, status, responses, corrects }
+  }
+
+  showDebug (payload) {
+    if (this.elements.debugOutput) {
+      this.elements.debugOutput.textContent = JSON.stringify(payload, null, 2)
+    }
   }
 }
+
+export default QuestionModalManager

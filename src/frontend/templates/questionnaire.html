@@ -30,10 +30,20 @@
     </card>
 </div>
 
+<div class="button-info-container">
+    <div>
+        <p>Saisie des éléments d'un nouveau questionnaire</p>
+        <button id="createQR" type="button">Créer un nouveau questionnaire</button>
+    </div>
+    <div></div>
+</div>
+
 {% else %}
 <h1>Vous n'avez pas les droits.</h1>
 <p>Login ou mot de passe incorrect.</p>
 {% endif %}
+
+{% include "questionnaire-modale.html"%}
 
 <script>
     window.APP_CONFIG = {
@@ -45,4 +55,5 @@
 </script>
 
 <script type="module" src="{{ url_for('static', filename='scripts/questionnaire/questionnaire-manager.js' )}}"></script>
+<script type="module" src="{{ url_for('static', filename='scripts/questionnaire/index.js' )}}"></script>
 {% endblock content %}

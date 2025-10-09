@@ -1,10 +1,10 @@
 // question-manager.js - Manager principal refactorisé
-import { Utils } from './utils.js'
+import { Utils } from '../utils/utils.js'
 import { QApiService } from './api-service.js'
-import { SelectManager } from './select-manager.js'
-import { ResponseManager } from './response-manager.js'
+import { SelectManager } from '../utils/select-manager.js'
+import { ResponseManager } from '../utils/response-manager.js'
 import { FormValidator } from './form-validator.js'
-import { ModalManager } from './modal-manager.js'
+import { QuestionModalManager } from './question-modale-manager.js'
 
 export class QuestionManager {
   constructor () {
@@ -23,7 +23,7 @@ export class QuestionManager {
     )
 
     this.validator = new FormValidator(this.elements, this.responseManager)
-    this.modalManager = new ModalManager(
+    this.modalManager = new QuestionModalManager(
       this.elements,
       this.responseManager,
       this.validator

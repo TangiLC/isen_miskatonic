@@ -1,4 +1,5 @@
-export class QRApiService {
+// questionnaire-api-service.js - Service API pour les questionnaires
+export class QuestionnaireApiService {
   constructor (config) {
     this.config = config
   }
@@ -48,7 +49,7 @@ export class QRApiService {
   }
 
   /**
-   * Récupère un questionnaire par son ID
+   * Récupère un questionnaire par son ID (format short pour modal)
    * @param {string} id - L'identifiant du questionnaire
    * @returns {Promise<Object>} Le questionnaire
    */
@@ -60,15 +61,18 @@ export class QRApiService {
   }
 
   /**
+   * Récupère tous les questionnaires
+   * @returns {Promise<Array>} La liste des questionnaires
+   */
+  async fetchQuestionnaires () {
+    const url = `${this.config.apiUrl}/questionnaires`
+    return this.fetchJSON(url)
+  }
+
+  /**
    * Met à jour un questionnaire existant
    * @param {string} id - L'identifiant du questionnaire
    * @param {Object} payload - Les données à mettre à jour
-   * @param {string} [payload.title] - Titre du questionnaire
-   * @param {string[]} [payload.subjects] - Sujets du questionnaire
-   * @param {string[]} [payload.uses] - Contextes d'utilisation
-   * @param {Object} [payload.questions] - Questions à ajouter {id, question, subjects, uses}
-   * @param {string} [payload.remark] - Remarque ou commentaire
-   * @param {string} [payload.status] - Statut (draft/active/archive)
    * @returns {Promise<Object>} Le questionnaire mis à jour
    */
   async updateQuestionnaire (id, payload) {
@@ -82,12 +86,6 @@ export class QRApiService {
   /**
    * Crée un nouveau questionnaire
    * @param {Object} payload - Les données du questionnaire
-   * @param {string} payload.title - Titre du questionnaire (requis)
-   * @param {string[]} [payload.subjects] - Sujets du questionnaire
-   * @param {string[]} [payload.uses] - Contextes d'utilisation
-   * @param {Array<{id: string, question: string}>} [payload.questions] - Liste des questions
-   * @param {string} [payload.remark] - Remarque ou commentaire
-   * @param {string} [payload.status] - Statut (draft/active/archive)
    * @returns {Promise<Response>} La réponse brute de l'API
    */
   async createQuestionnaire (payload) {
@@ -97,15 +95,6 @@ export class QRApiService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(payload)
     })
-  }
-
-  /**
-   * Récupère tous les questionnaires
-   * @returns {Promise<Array>} La liste des questionnaires
-   */
-  async fetchQuestionnaires () {
-    const url = `${this.config.apiUrl}/questionnaires`
-    return this.fetchJSON(url)
   }
 
   /**
@@ -130,7 +119,6 @@ export class QRApiService {
 
   /**
    * Charge les données pour les selects (subjects et uses)
-   * Utilisé pour les formulaires
    * @returns {Promise<{subjects: Array, uses: Array}>}
    */
   async loadSelectData () {

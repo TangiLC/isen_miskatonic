@@ -1,9 +1,9 @@
-import { QRApiService } from './api-service.js'
+import { QuestionnaireApiService } from './questionnaire-api-service.js'
 
 class QuestionnaireDetail {
   constructor () {
     this.config = window.APP_CONFIG || {}
-    this.apiService = new QRApiService(this.config)
+    this.apiService = new QuestionnaireApiService(this.config)
     this.questionnaireId = this.config.questionnaireId
     this.currentQuestionnaire = null
     this.draftQuestions = [] // Brouillon local des questions
