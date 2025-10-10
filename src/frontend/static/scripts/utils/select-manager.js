@@ -2,18 +2,20 @@
 import { Utils } from './utils.js'
 
 export class SelectManager {
-  static fillSelect (selectEl, values) {
+  static fillSelect (selectEl, selectedValues = []) {
     if (!selectEl) return
 
-    // Ajouter uniquement les nouvelles valeurs qui n'existent pas déjà
-    const existing = new Set(Array.from(selectEl.options).map(o => o.value))
+    const selectedSet = new Set(selectedValues || [])
 
     Array.from(selectEl.options).forEach(option => {
-      option.selected = values.includes(option.value)
+      option.selected = selectedSet.has(option.value)
     })
 
-    values
-      .filter(value => value && !existing.has(value))
+    selectedValues
+      .filter(value => {
+        const val = String(value).trim()
+        return val && !Array.from(selectEl.options).some(o => o.value === val)
+      })
       .forEach(value => {
         const option = document.createElement('option')
         option.value = value
@@ -23,33 +25,32 @@ export class SelectManager {
       })
   }
 
-  static fillSelectViewOnly (selectEl, selectedValues) {
+  static fillSelectViewOnly (selectEl, selectedValues = []) {
     if (!selectEl) return
 
-    // Vider complètement le select
     selectEl.innerHTML = ''
-
-    // Ajouter uniquement les valeurs sélectionnées
     selectedValues.forEach(value => {
+      const val = String(value).trim()
+      if (!val) return
+
       const option = document.createElement('option')
-      option.value = value
-      option.textContent = value
+      option.value = val
+      option.textContent = val
       option.selected = true
       selectEl.appendChild(option)
     })
   }
 
-  static fillSelectOptions (selectEl, values) {
+  static fillSelectOptions (selectEl, values = []) {
     if (!selectEl) return
 
-    // Récupérer les options existantes pour éviter les doublons
     const existing = new Set(Array.from(selectEl.options).map(o => o.value))
 
     values.forEach(v => {
       const val = String(v).trim()
       if (!val || existing.has(val)) return
 
-      existing.add(val) // Ajouter à la liste des existants
+      existing.add(val)
 
       const opt = document.createElement('option')
       opt.value = val
@@ -80,5 +81,12 @@ export class SelectManager {
   static collectMultiSelect (selectEl) {
     if (!selectEl) return []
     return Utils.$$('option:checked', selectEl).map(o => o.value)
+  }
+
+  static clearSelection (selectEl) {
+    if (!selectEl) return
+    Array.from(selectEl.options).forEach(option => {
+      option.selected = false
+    })
   }
 }

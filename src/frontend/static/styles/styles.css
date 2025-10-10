@@ -350,14 +350,16 @@ p a:hover {
 
 #questionsTable,
 #questionnairesTable,
-#questionnairesTable {
+#questionnairesTable,
+#qr-modal-qTable {
 	width: 100%;
 	border-collapse: collapse;
 	table-layout: fixed;
 }
 #questionsTable thead,
 #questionnairesTable thead,
-#questionnaireTable thead {
+#questionnaireTable thead,
+#qr-modal-qTable thead {
 	position: sticky;
 	top: 0;
 	z-index: 2;
@@ -365,18 +367,24 @@ p a:hover {
 }
 #questionsTable th,
 #questionnairesTable th,
-#questionnaireTable th {
+#questionnaireTable th,
+#qr-modal-qTable th {
 	text-align: center;
 }
 #questionsTable #id,
 #questionnairesTable #id,
-#questionnaireTable th {
+#questionnaireTable th,
+#qr-modal-qTable #id,
+#qr-modal-qTable #number {
 	width: 6%;
 }
 #questionsTable #question,
 #questionnaireTable #question,
 #questionnairesTable #title {
 	width: 32%;
+}
+#qr-modal-qTable #question {
+	width: 60%;
 }
 #questionsTable #subject {
 	width: 14%;
@@ -399,7 +407,9 @@ p a:hover {
 #questionsTable th,
 #questionsTable td,
 #questionnairesTable th,
-#questionnairesTable td {
+#questionnairesTable td,
+#qr-modal-qTable th,
+#qr-modal-qTable td {
 	border: 1px solid black;
 	padding: 0.25rem 0.5rem;
 	text-align: left;
@@ -503,12 +513,17 @@ p a:hover {
 	width: 99%;
 }
 
+.table-container {
+	grid-column: span 3;
+}
+
 .q-question,
 .q-remark {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 }
+
 .q-question input,
 .q-remark input {
 	width: 80%;
@@ -522,7 +537,8 @@ p a:hover {
 }
 
 .q-subject,
-.q-use {
+.qr-subject,
+.q-use.qr-use {
 	grid-column: span 2;
 }
 

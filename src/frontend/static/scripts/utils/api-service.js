@@ -1,5 +1,4 @@
-// questionnaire-api-service.js - Service API pour les questionnaires
-export class QuestionnaireApiService {
+export class ApiService {
   constructor (config) {
     this.config = config
   }
@@ -26,7 +25,6 @@ export class QuestionnaireApiService {
       headers: { Accept: 'application/json' }
     }
 
-    // Si c'est une requête authentifiée
     if (options.authenticated !== false) {
       try {
         defaultOptions.headers = {
@@ -48,33 +46,46 @@ export class QuestionnaireApiService {
     return res.json()
   }
 
-  /**
-   * Récupère un questionnaire par son ID (format short pour modal)
-   * @param {string} id - L'identifiant du questionnaire
-   * @returns {Promise<Object>} Le questionnaire
-   */
-  async fetchQuestionnaire (id) {
+  // ========== QUESTIONS ==========
+
+  async fetchQuestion (id) {
+    const url = `${this.config.apiUrl}/question/${encodeURIComponent(id)}`
+    const data = await this.fetchJSON(url)
+    return this.normalizeData(data)
+  }
+
+  async updateQuestion (id, payload) {
+    const url = `${this.config.apiUrl}/question/${encodeURIComponent(id)}`
+    return this.fetchJSON(url, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    })
+  }
+
+  async createQuestion (payload) {
+    const url = `${this.config.apiUrl}/question`
+    return fetch(url, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(payload)
+    })
+  }
+
+  // ========== QUESTIONNAIRES ==========
+
+  async fetchQuestionnaireById (id) {
     const url = `${this.config.apiUrl}/questionnaire/${encodeURIComponent(
       id
     )}/short`
-    return this.fetchJSON(url)
+    const data = await this.fetchJSON(url)
+    return this.normalizeData(data)
   }
 
-  /**
-   * Récupère tous les questionnaires
-   * @returns {Promise<Array>} La liste des questionnaires
-   */
   async fetchQuestionnaires () {
     const url = `${this.config.apiUrl}/questionnaires`
     return this.fetchJSON(url)
   }
 
-  /**
-   * Met à jour un questionnaire existant
-   * @param {string} id - L'identifiant du questionnaire
-   * @param {Object} payload - Les données à mettre à jour
-   * @returns {Promise<Object>} Le questionnaire mis à jour
-   */
   async updateQuestionnaire (id, payload) {
     const url = `${this.config.apiUrl}/questionnaire/${encodeURIComponent(id)}`
     return this.fetchJSON(url, {
@@ -83,11 +94,6 @@ export class QuestionnaireApiService {
     })
   }
 
-  /**
-   * Crée un nouveau questionnaire
-   * @param {Object} payload - Les données du questionnaire
-   * @returns {Promise<Response>} La réponse brute de l'API
-   */
   async createQuestionnaire (payload) {
     const url = `${this.config.apiUrl}/questionnaire`
     return fetch(url, {
@@ -97,11 +103,6 @@ export class QuestionnaireApiService {
     })
   }
 
-  /**
-   * Sélectionne un questionnaire
-   * @param {string} id - L'identifiant du questionnaire
-   * @returns {Promise<Object>} La réponse de sélection
-   */
   async selectQuestionnaire (id) {
     const url = `/api/questionnaire/${encodeURIComponent(id)}/select`
     return fetch(url, {
@@ -117,10 +118,26 @@ export class QuestionnaireApiService {
     })
   }
 
-  /**
-   * Charge les données pour les selects (subjects et uses)
-   * @returns {Promise<{subjects: Array, uses: Array}>}
-   */
+  // ========== UTILITAIRES ==========
+
+  normalizeData (data) {
+    if (!data) return data
+
+    const normalized = { ...data }
+
+    if (normalized.subject && !normalized.subjects) {
+      normalized.subjects = normalized.subject
+      delete normalized.subject
+    }
+
+    if (normalized.use && !normalized.uses) {
+      normalized.uses = normalized.use
+      delete normalized.use
+    }
+
+    return normalized
+  }
+
   async loadSelectData () {
     if (!this.config.apiUrl) {
       console.warn('apiUrl non configuré dans APP_CONFIG')

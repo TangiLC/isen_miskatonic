@@ -1,0 +1,85 @@
+<card class="question-detail" id="questionnaire-detail">
+    <!-- En-tête avec titre et bouton fermer -->
+    <div class="question-title">
+        <h2 style="margin:0;">Modification du questionnaire 68daf3b7aec3d86f0785384f</h2>
+        <button id="qr-close-btn" type="button" aria-label="Fermer la fenêtre" title="Fermer">
+            <img src="/static/assets/icon-close.svg">
+        </button>
+    </div>
+
+    <!-- Intitulé du questionnaire -->
+    <div class="q-question">
+        <label for="qr-title-input">Intitulé</label>
+        <input id="qr-title-input" type="text" name="title" placeholder="Saisir le titre du questionnaire" required="">
+    </div>
+
+    <!-- Sujets (select multiple + ajout) -->
+    <div class="qr-subject">
+        <label for="qr-subject-select">Sujets</label>
+        <div class="q-row">
+            <select id="qr-subject-select" multiple="" size="4" aria-label="Subjects">
+                <option value="Automation">Automation</option>
+                <option value="BDD">BDD</option>
+                <option value="Classification">Classification</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Docker">Docker</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Streaming de données">Streaming de données</option>
+                <option value="Systèmes distribués">Systèmes distribués</option>
+                <option value="Test">Test</option>
+            </select>
+            <div class="q-adder">
+                <input id="qr-subject-add" type="text" placeholder="Ajouter un sujet...">
+                <button type="button" id="qr-subject-add-btn">Ajouter un sujet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usages (select multiple + ajout) -->
+    <div class="qr-use">
+        <label for="qr-use-select">Usages</label>
+        <div class="q-row">
+            <select id="qr-use-select" multiple="" size="4" aria-label="Uses">
+                <option value="Test">Test</option>
+                <option value="Test de positionnement">Test de positionnement</option>
+                <option value="Test de validation">Test de validation</option>
+                <option value="Total Bootcamp">Total Bootcamp</option>
+            </select>
+            <div class="q-adder">
+                <input id="qr-use-add" type="text" placeholder="Ajouter un usage...">
+                <button type="button" id="qr-use-add-btn">Ajouter un usage</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remarque -->
+    <div class="q-remark">
+        <label for="qr-remark-input">Remarque</label>
+        <input type="text" id="qr-remark-input" name="remark" placeholder="Optionnel">
+    </div>
+
+    <!-- Informations (créateur, dates, statut) -->
+    <div class="q-info">
+        <div>Créé par : Vous</div>
+        <div>Créé le : 01/10/2025 01:00:00</div>
+        <div>Modifié le : 06/10/2025 06:58:17</div>
+        <div>
+            <label for="qr-status-select">Statut</label>
+            <select id="qr-status-select" name="status">
+                <option value="draft" selected="">Brouillon</option>
+                <option value="active">Actif</option>
+                <option value="archive">Archivé</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tableau des questions (visible en mode VIEW et EDIT uniquement) -->
+
+
+    <!-- Boutons d'action (enregistrer/réinitialiser) -->
+    <div class="q-buttons">
+        <button type="button" id="qr-submit-btn">Modifier</button>
+        <button type="button" id="qr-reset-btn" class="secondary">Réinitialiser</button>
+    </div>
+
+</card>

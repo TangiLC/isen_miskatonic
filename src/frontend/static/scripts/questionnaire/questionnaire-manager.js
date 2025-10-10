@@ -1,9 +1,8 @@
 // questionnaire-manager.js - Manager principal refactorisé
 import { Utils } from '../utils/utils.js'
-import { QuestionnaireApiService as QApiService } from './questionnaire-api-service.js'
+import { ApiService as QRApiService } from '../utils/api-service.js'
 import { SelectManager } from '../utils/select-manager.js'
-import { ResponseManager } from '../utils/response-manager.js'
-import { QuestionnaireFormValidator } from './form-validator.js'
+import { QuestionnaireFormValidator } from '../utils/form-validator.js'
 import { QuestionnaireModalManager } from './questionnaire-modale-manager.js'
 
 export class QuestionnaireManager {
@@ -11,24 +10,18 @@ export class QuestionnaireManager {
     this.config = window.APP_CONFIG || {}
     this.elements = this.getElements()
     this.currentQuestionnaireId = null
+    this.userNameCache = new Map()
 
     // Initialisation des services
-    this.apiService = new QApiService(this.config)
+    this.apiService = new QRApiService(this.config)
 
-    // Initialisation des managers avec callbacks
-    this.responseManager = new ResponseManager(
-      this.elements.responsesList,
-      () => this.validator.validateForm(),
-      () => this.validator.updateStatusOptions()
-    )
+    // Initialisation du validateur
+    this.validator = new QuestionnaireFormValidator(this.elements)
 
-    this.validator = new QuestionnaireFormValidator(
-      this.elements,
-      this.responseManager
-    )
+    // Initialisation du gestionnaire de modale
     this.modalManager = new QuestionnaireModalManager(
       this.elements,
-      this.responseManager,
+      null,
       this.validator
     )
 
@@ -41,16 +34,15 @@ export class QuestionnaireManager {
       loadButton: document.getElementById('loadQR'),
       modal: document.getElementById('questionnaire-modal'),
       closeBtn: document.getElementById('qr-close-btn'),
-      form: document.getElementById('questionnaire-form'),
-      submitBtn: document.getElementById('submit-btn'),
-      resetBtn: document.getElementById('reset-btn'),
+      submitBtn: document.getElementById('qr-submit-btn'),
+      resetBtn: document.getElementById('qr-reset-btn'),
 
       // Titre et infos
       modalTitle: document.querySelector(
-        '#questionnaire-modal .questionnaire-title h2'
+        '#questionnaire-modal .question-title h2'
       ),
       infoSections: document.querySelectorAll(
-        '#questionnaire-modal .qr-info > div'
+        '#questionnaire-modal .q-info > div'
       ),
 
       // Inputs
@@ -59,14 +51,31 @@ export class QuestionnaireManager {
       useSelect: document.getElementById('qr-use-select'),
       remarkInput: document.getElementById('qr-remark-input'),
       statusSelect: document.getElementById('qr-status-select'),
-      addResponseBtn: document.getElementById('qr-add-response-btn'),
-      responsesList: document.getElementById('qr-responses-list'),
-      debugOutput: document.getElementById('qr-debug-output'),
+
+      // Boutons d'ajout
+      subjectAdd: document.getElementById('qr-subject-add'),
+      subjectAddBtn: document.getElementById('qr-subject-add-btn'),
+      useAdd: document.getElementById('qr-use-add'),
+      useAddBtn: document.getElementById('qr-use-add-btn'),
+
+      // Feedback et tableau
       resultMessage: document.getElementById('resultMessage'),
       scrollCard: document.getElementById('scroll-card'),
       tableBody: document.querySelector('#questionnairesTable tbody')
     }
   }
+
+  showMessage (msg = '', type = 'info') {
+    const feedback = this.elements.resultMessage
+    if (!feedback) return
+
+    feedback.textContent = msg
+    feedback.dataset.type = type
+    feedback.classList.remove('success', 'error', 'info')
+    feedback.classList.add(type)
+  }
+
+  // ===== GESTION DU TABLEAU =====
 
   async handleLoadClick () {
     const btn = this.elements.loadButton
@@ -88,10 +97,16 @@ export class QuestionnaireManager {
       if (msg) {
         const count = this.elements.tableBody?.rows?.length ?? 0
         msg.textContent = `${count} questionnaire(s) chargé(s).`
+        msg.dataset.type = 'success'
+        msg.classList.add('success')
       }
     } catch (err) {
       console.error(err)
-      if (msg) msg.textContent = 'Erreur lors du chargement des questionnaires.'
+      if (msg) {
+        msg.textContent = 'Erreur lors du chargement des questionnaires.'
+        msg.dataset.type = 'error'
+        msg.classList.add('error')
+      }
     } finally {
       if (btn) {
         btn.disabled = false
@@ -100,7 +115,6 @@ export class QuestionnaireManager {
     }
   }
 
-  // Création d'un bouton d'action avec icône SVG
   createActionButton ({ src, title, onClick, disabled = false }) {
     const btn = document.createElement('button')
     btn.type = 'button'
@@ -120,7 +134,6 @@ export class QuestionnaireManager {
     return btn
   }
 
-  // Gestion des actions pour un questionnaire
   getActionsForQuestionnaire (questionnaire) {
     const actions = []
 
@@ -129,7 +142,7 @@ export class QuestionnaireManager {
       this.createActionButton({
         src: '/static/assets/icon-eye.svg',
         title: 'Voir les détails du questionnaire',
-        onClick: () => this.handleViewDetails(questionnaire.id)
+        onClick: () => this.openQuestionnaireModal('view', questionnaire.id)
       })
     )
 
@@ -140,7 +153,7 @@ export class QuestionnaireManager {
       this.createActionButton({
         src: '/static/assets/icon-edit.svg',
         title: 'Éditer le questionnaire',
-        onClick: () => this.handleEditQuestionnaire(questionnaire.id),
+        onClick: () => this.openQuestionnaireModal('edit', questionnaire.id),
         disabled: !canEdit
       })
     )
@@ -173,29 +186,27 @@ export class QuestionnaireManager {
     }
   }
 
-  renderQuestionnaireList (list) {
+  getLatestDate (q) {
+    const dates = [q.created_at, q.updated_at, q.edited_at].filter(Boolean)
+    if (dates.length === 0) return null
+
+    const validDates = dates.map(d => new Date(d)).filter(d => !isNaN(d))
+    if (validDates.length === 0) return null
+
+    return new Date(Math.max(...validDates))
+  }
+
+  async renderQuestionnaireList (list) {
     const tbody = this.elements.tableBody
     if (!tbody) return
     tbody.innerHTML = ''
 
     const toText = v => (Array.isArray(v) ? v.join(', ') : v ?? '')
 
-    // Fonction pour obtenir la date la plus récente
-    const getLatestDate = q => {
-      const dates = [q.created_at, q.updated_at, q.edited_at].filter(Boolean)
-      if (dates.length === 0) return null
-
-      const validDates = dates.map(d => new Date(d)).filter(d => !isNaN(d))
-
-      if (validDates.length === 0) return null
-      return new Date(Math.max(...validDates))
-    }
-
     for (const q of list) {
-      const latestDate = getLatestDate(q)
+      const latestDate = this.getLatestDate(q)
       const tr = document.createElement('tr')
 
-      // Colonnes de données
       tr.innerHTML = `
         <td>${q.id ?? ''}</td>
         <td>${q.title ?? q.titre ?? ''}</td>
@@ -206,11 +217,12 @@ export class QuestionnaireManager {
             ? q.questions.length
             : q.count ?? q.nb_lignes ?? ''
         }</td>
-        <td>${q.created_by ?? q.author ?? ''}</td>
+        <td>${
+          q.created_by ? await this.getUserNameFromCache(q.created_by) : '-'
+        }</td>
         <td>${latestDate ? this.formatDateTime(latestDate) : ''}</td>
       `
 
-      // Colonne Actions
       const actionsCell = document.createElement('td')
       actionsCell.className = 'actions-cell'
 
@@ -222,77 +234,129 @@ export class QuestionnaireManager {
     }
   }
 
-  // Handlers pour les actions
-  handleViewDetails (id) {
-    this.openQuestionnaireModal(id, 'view')
+  async getUserNameFromCache (userId) {
+    if (this.userNameCache.has(userId)) {
+      return this.userNameCache.get(userId)
+    }
+
+    try {
+      const response = await fetch(`/api/users/${userId}/name`)
+      const result = await response.json()
+      const userName = result.userName || 'Inconnu'
+      this.userNameCache.set(userId, userName)
+      return userName
+    } catch (error) {
+      console.warn('Erreur récupération nom utilisateur:', error)
+      this.userNameCache.set(userId, 'Inconnu')
+      return 'Inconnu'
+    }
   }
 
-  handleEditQuestionnaire (id) {
-    this.openQuestionnaireModal(id, 'edit')
-  }
+  async handleSelectQuestionnaire (id) {
+    try {
+      const data = await this.apiService.selectQuestionnaire(id)
 
-  handleSelectQuestionnaire (id) {
-    console.log('Sélectionner le questionnaire:', id)
-    // Ajouter votre logique de sélection ici
-    // Par exemple : rediriger vers une page, ouvrir une modale, etc.
-  }
-
-  setupEventListeners () {
-    // Bouton de création de questionnaire
-    if (this.elements.createButton) {
-      this.elements.createButton.addEventListener('click', () => {
-        this.openQuestionnaireModal(null, 'create')
-      })
-    }
-
-    // Bouton de chargement des questionnaires
-    if (this.elements.loadButton) {
-      this.elements.loadButton.addEventListener('click', () =>
-        this.handleLoadClick()
-      )
-    }
-
-    // Boutons de la modale
-    if (this.elements.closeBtn) {
-      this.elements.closeBtn.addEventListener('click', () => {
-        this.modalManager.closeModal()
-      })
-    }
-
-    if (this.elements.resetBtn) {
-      this.elements.resetBtn.addEventListener('click', () => {
-        this.modalManager.resetForm()
-      })
-    }
-
-    // Validation en temps réel
-    ;[this.elements.titleInput, this.elements.remarkInput].forEach(input => {
-      if (input) {
-        input.addEventListener('input', () => this.validator.validateForm())
+      if (data.success) {
+        const q_id = data.questionnaire_id.slice(-6)
+        this.showMessage(
+          `Questionnaire ..${q_id} sélectionné avec succès`,
+          'success'
+        )
+        setTimeout(() => {
+          window.location.href = '/questions'
+        }, 1500)
       }
-    })
-    ;[
-      this.elements.subjectSelect,
-      this.elements.useSelect,
-      this.elements.statusSelect
-    ].forEach(select => {
-      if (select) {
-        select.addEventListener('change', () => this.validator.validateForm())
+    } catch (error) {
+      console.error('Erreur sélection:', error)
+      this.showMessage('Impossible de sélectionner ce questionnaire', 'error')
+    }
+  }
+
+  // ===== GESTION DE LA MODALE =====
+
+  async openQuestionnaireModal (mode, id = null) {
+    if (mode === 'create') {
+      this.modalManager.openModal('create')
+    } else if ((mode === 'view' || mode === 'edit') && id) {
+      try {
+        this.showMessage('')
+        const data = await this.apiService.fetchQuestionnaireById(id)
+        this.currentQuestionnaireId = id
+        this.modalManager.currentQuestionnaireId = id
+        this.modalManager.populateModal(data, mode)
+
+        // En mode edit, configurer la soumission
+        if (mode === 'edit') {
+          this.setupEditSubmission(data)
+        }
+      } catch (error) {
+        console.error('Erreur récupération questionnaire:', error)
+        this.showMessage(`Erreur chargement: ${error.message}`, 'error')
       }
+    } else {
+      console.error('Mode ou ID invalide', { mode, id })
+    }
+  }
+
+  setupEditSubmission (originalData) {
+    const submitBtn = this.elements.submitBtn
+    if (!submitBtn) return
+
+    // Nettoie les anciens handlers
+    const newBtn = submitBtn.cloneNode(true)
+    submitBtn.parentNode.replaceChild(newBtn, submitBtn)
+    this.elements.submitBtn = newBtn
+
+    newBtn.addEventListener('click', async e => {
+      e.preventDefault()
+      await this.handleSubmit()
     })
 
-    // Observer pour les changements dans la liste des réponses
-    if (this.elements.responsesList && window.MutationObserver) {
-      const observer = new MutationObserver(() => {
-        this.validator.validateForm()
-        this.validator.updateStatusOptions()
-      })
-      observer.observe(this.elements.responsesList, {
-        childList: true,
-        subtree: true
+    // Bouton reset
+    const resetBtn = this.elements.resetBtn
+    if (resetBtn) {
+      const newReset = resetBtn.cloneNode(true)
+      resetBtn.parentNode.replaceChild(newReset, resetBtn)
+      this.elements.resetBtn = newReset
+
+      newReset.addEventListener('click', () => {
+        this.modalManager.populateModal(originalData, 'edit')
       })
     }
   }
+
+  async handleSubmit () {
+    const mode = this.modalManager.currentMode
+    const payload = this.modalManager.collectFormData()
+
+    // Validation
+    const errors = this.validator.validateSubmissionPayload(payload)
+    if (errors.length > 0) {
+      this.showMessage(errors[0], 'error')
+      return
+    }
+
+    try {
+      if (mode === 'create') {
+        await this.apiService.createQuestionnaire(payload)
+        this.showMessage('Questionnaire créé avec succès', 'success')
+      } else if (mode === 'edit') {
+        const id = this.currentQuestionnaireId
+        await this.apiService.updateQuestionnaire(id, payload)
+        this.showMessage('Questionnaire modifié avec succès', 'success')
+      }
+
+      this.modalManager.closeModal()
+
+      // Recharger la liste
+      await this.handleLoadClick()
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error)
+      this.showMessage(`Erreur: ${error.message}`, 'error')
+    }
+  }
+
+  // ===== INITIALISATION =====
 
   async loadSelectData () {
     try {
@@ -307,61 +371,122 @@ export class QuestionnaireManager {
     }
   }
 
-  async init () {
-    await this.loadSelectData()
-
-    if (
-      this.elements.responsesList &&
-      this.elements.responsesList.children.length === 0
-    ) {
-      this.responseManager.addResponseRow()
-      this.responseManager.addResponseRow()
+  setupEventListeners () {
+    // Bouton création
+    if (this.elements.createButton) {
+      this.elements.createButton.addEventListener('click', () => {
+        this.openQuestionnaireModal('create')
+      })
     }
 
+    // Bouton chargement
+    if (this.elements.loadButton) {
+      this.elements.loadButton.addEventListener('click', () =>
+        this.handleLoadClick()
+      )
+    }
+
+    // Boutons modale
+    if (this.elements.closeBtn) {
+      this.elements.closeBtn.addEventListener('click', () => {
+        this.modalManager.closeModal()
+      })
+    }
+
+    if (this.elements.resetBtn) {
+      this.elements.resetBtn.addEventListener('click', () => {
+        this.modalManager.resetForm()
+      })
+    }
+
+    // Échap pour fermer
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && this.elements.modal?.style.display !== 'none') {
+        this.modalManager.closeModal()
+      }
+    })
+
+    // Bouton submit (mode create)
+    if (this.elements.submitBtn) {
+      this.elements.submitBtn.addEventListener('click', async e => {
+        e.preventDefault()
+        if (this.modalManager.currentMode === 'create') {
+          await this.handleSubmit()
+        }
+      })
+    }
+
+    // Ajout de subject
+    if (this.elements.subjectAddBtn) {
+      this.elements.subjectAddBtn.addEventListener('click', () => {
+        SelectManager.addOptionIfMissing(
+          this.elements.subjectSelect,
+          this.elements.subjectAdd?.value
+        )
+        if (this.elements.subjectAdd) this.elements.subjectAdd.value = ''
+        this.validator.validateForm()
+      })
+    }
+
+    // Ajout de use
+    if (this.elements.useAddBtn) {
+      this.elements.useAddBtn.addEventListener('click', () => {
+        SelectManager.addOptionIfMissing(
+          this.elements.useSelect,
+          this.elements.useAdd?.value
+        )
+        if (this.elements.useAdd) this.elements.useAdd.value = ''
+        this.validator.validateForm()
+      })
+    }
+
+    // Validation en temps réel
+    const inputsToValidate = [
+      this.elements.titleInput,
+      this.elements.remarkInput
+    ]
+
+    inputsToValidate.forEach(input => {
+      if (input) {
+        input.addEventListener('input', () => this.validator.validateForm())
+      }
+    })
+
+    const selectsToValidate = [
+      this.elements.subjectSelect,
+      this.elements.useSelect,
+      this.elements.statusSelect
+    ]
+
+    selectsToValidate.forEach(select => {
+      if (select) {
+        select.addEventListener('change', () => {
+          this.validator.validateForm()
+          this.validator.updateStatusOptions()
+        })
+      }
+    })
+
+    // Événements personnalisés (pour compatibilité future)
+    window.addEventListener('questionnaire:open-modal', async e => {
+      const { id, questionnaire, mode } = e.detail
+      const qid = id ?? questionnaire?.id
+      if (!qid) return
+      await this.openQuestionnaireModal(mode, qid)
+    })
+
+    window.addEventListener('questionnaire:create', () => {
+      this.modalManager.openModal('create')
+    })
+  }
+
+  async init () {
+    await this.loadSelectData()
     this.setupEventListeners()
     this.validator.validateForm()
     this.validator.updateStatusOptions()
-  }
 
-  // Affichage simple d'un message dans #resultMessage
-  showMessage (text = '', type = 'info') {
-    const el = this.elements?.resultMessage
-    if (!el) return
-    el.textContent = String(text || '')
-    el.dataset.type = type
-  }
-
-  // Rendu générique de la liste dans le tableau central
-  renderTable (list = []) {
-    this.renderQuestionnaireList(Array.isArray(list) ? list : [])
-    if (this.elements?.scrollCard) this.elements.scrollCard.style.display = ''
-  }
-
-  // Nouvelle API publique demandée
-  async loadQuestionnaires () {
-    try {
-      this.showMessage('Chargement…', 'info')
-      const data = await this.apiService.fetchQuestionnaires()
-      const list = Array.isArray(data) ? data : data?.data ?? []
-      this.renderTable(list)
-      const count = this.elements.tableBody?.rows?.length ?? list.length ?? 0
-      this.showMessage(`${count} questionnaire(s) chargé(s).`, 'success')
-    } catch (err) {
-      console.error(err)
-      this.renderTable([])
-      this.showMessage('Erreur lors du chargement des questionnaires.', 'error')
-    }
-  }
-
-  // Méthode pour ouvrir la modale
-  openQuestionnaireModal (id, mode) {
-    if (
-      this.modalManager &&
-      typeof this.modalManager.openModal === 'function'
-    ) {
-      this.modalManager.openModal(id, mode)
-    } else {
-      console.warn('modalManager.openModal not available')
-    }
+    // Chargement automatique des questionnaires
+    await this.handleLoadClick()
   }
 }

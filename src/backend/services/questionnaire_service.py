@@ -117,7 +117,7 @@ class QuestionnaireService:
             PermissionError: Si l'utilisateur n'est pas le créateur
         """
         # Vérifier que le questionnaire existe et récupérer le créateur
-        existing_questionnaire = await self.repository.get_questionnaire_by_id(
+        existing_questionnaire = await self.repository.get_short_questionnaire_by_id(
             questionnaire_id
         )
         if existing_questionnaire is None:
@@ -139,7 +139,7 @@ class QuestionnaireService:
         await self.repository.update_questionnaire(questionnaire_id, update_data)
 
         # Retourner le questionnaire mis à jour
-        return await self.repository.get_questionnaire_by_id(questionnaire_id)
+        return await self.repository.get_short_questionnaire_by_id(questionnaire_id)
 
     ################################################################################
     async def get_all_questionnaires(self) -> List[Questionnaire]:

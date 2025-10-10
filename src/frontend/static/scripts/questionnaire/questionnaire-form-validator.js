@@ -1,6 +1,6 @@
 import { SelectManager } from '../utils/select-manager.js'
 
-export class QuestionnaireValidator {
+export class QuestionnaireFormValidator {
   constructor (elements) {
     this.elements = elements
   }
@@ -14,28 +14,14 @@ export class QuestionnaireValidator {
       SelectManager.collectMultiSelect(this.elements.subjectSelect).length > 0
     const useFilled =
       SelectManager.collectMultiSelect(this.elements.useSelect).length > 0
-    const currentStatus = this.elements.statusSelect?.value || 'draft'
 
-    let isValid = false
-
-    // Pour tous les statuts, les champs de base sont requis
-    if (currentStatus === 'draft') {
-      isValid = titleFilled && subjectFilled && useFilled
-    } else if (currentStatus === 'active' || currentStatus === 'archive') {
-      // Pour active/archive, on vérifie aussi que la liste questions n'est pas vide
-      // (cette info sera vérifiée côté serveur, mais on peut bloquer côté client)
-      isValid = titleFilled && subjectFilled && useFilled
-    }
+    const isValid = titleFilled && subjectFilled && useFilled
 
     this.elements.submitBtn.disabled = !isValid
   }
 
   updateStatusOptions () {
     if (!this.elements.statusSelect) return
-
-    // Pour l'instant, on laisse tous les statuts disponibles
-    // La validation de la liste de questions se fera côté serveur
-    const currentValue = this.elements.statusSelect.value
 
     const activeOpt = this.elements.statusSelect.querySelector(
       'option[value="active"]'
@@ -44,8 +30,6 @@ export class QuestionnaireValidator {
       'option[value="archive"]'
     )
 
-    // On pourrait désactiver active/archive si on connaît l'état de la liste questions
-    // Mais pour l'instant on laisse tout enabled
     ;[activeOpt, archiveOpt].forEach(opt => {
       if (opt) opt.disabled = false
     })
@@ -65,17 +49,6 @@ export class QuestionnaireValidator {
     }
     if (payload.uses.length === 0) {
       errors.push('Veuillez renseigner au moins un usage.')
-    }
-
-    // Règle : draft si liste questions vide
-    // La validation complète sera faite côté serveur
-    if (
-      (currentStatus === 'active' || currentStatus === 'archive') &&
-      (!payload.questions || payload.questions.length === 0)
-    ) {
-      errors.push(
-        'Un questionnaire doit contenir au moins une question pour être actif ou archivé.'
-      )
     }
 
     return errors

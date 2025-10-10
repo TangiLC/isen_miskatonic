@@ -17,7 +17,7 @@
             </div>
 
             <!-- Sujets (select multiple + ajout) -->
-            <div class="q-subject">
+            <div class="qr-subject">
                 <label for="qr-subject-select">Sujets</label>
                 <div class="q-row">
                     <select id="qr-subject-select" multiple size="4" aria-label="Subjects"></select>
@@ -29,7 +29,7 @@
             </div>
 
             <!-- Usages (select multiple + ajout) -->
-            <div class="q-use">
+            <div class="qr-use">
                 <label for="qr-use-select">Usages</label>
                 <div class="q-row">
                     <select id="qr-use-select" multiple size="4" aria-label="Uses"></select>
@@ -61,11 +61,31 @@
                 </div>
             </div>
 
+            <!-- Tableau des questions (visible en mode VIEW et EDIT uniquement) -->
+            <div id="qr-modal-questions-container" class="table-container" style="display:none;">
+                <h3>Questions du questionnaire</h3>
+                <card class="scroll-card" id="qr-modal-questions-card">
+                    <table id="qr-modal-qTable">
+                        <thead>
+                            <tr>
+                                <th id="number">N°</th>
+                                <th id="id">ID</th>
+                                <th id="question">Question</th>
+                                <th id="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </card>
+            </div>
+
             <!-- Boutons d'action (enregistrer/réinitialiser) -->
             <div class="q-buttons">
                 <button type="button" id="qr-submit-btn">Enregistrer</button>
                 <button type="button" id="qr-reset-btn" class="secondary">Réinitialiser</button>
             </div>
+
         </card>
     </div>
 </div>

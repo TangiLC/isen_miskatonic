@@ -114,25 +114,40 @@ export class QuestionModalManager {
       }
     }
 
-    // Subjects et Uses
+    /* Subjects et Uses
     if (mode === 'view') {
       SelectManager.fillSelectViewOnly(
         this.elements.subjectSelect,
-        Array.isArray(data.subject) ? [...new Set(data.subject)] : []
+        Array.isArray(data.subjects) ? [...new Set(data.subjects)] : []
       )
       SelectManager.fillSelectViewOnly(
         this.elements.useSelect,
-        Array.isArray(data.use) ? [...new Set(data.use)] : []
+        Array.isArray(data.uses) ? [...new Set(data.uses)] : []
       )
     } else {
       SelectManager.fillSelect(
         this.elements.subjectSelect,
-        Array.isArray(data.subject) ? [...new Set(data.subject)] : []
+        Array.isArray(data.subjects) ? [...new Set(data.subjects)] : []
       )
       SelectManager.fillSelect(
         this.elements.useSelect,
-        Array.isArray(data.use) ? [...new Set(data.use)] : []
+        Array.isArray(data.uses) ? [...new Set(data.uses)] : []
       )
+    }*/
+    // Subjects et Uses
+    const subjects = Array.isArray(data.subjects)
+      ? [...new Set(data.subjects)]
+      : []
+    const uses = Array.isArray(data.uses) ? [...new Set(data.uses)] : []
+
+    if (mode === 'view') {
+      SelectManager.fillSelectViewOnly(this.elements.subjectSelect, subjects)
+      SelectManager.fillSelectViewOnly(this.elements.useSelect, uses)
+    } else {
+      // En mode CREATE/EDIT, les options sont déjà chargées via loadSelectData()
+      // On sélectionne simplement les bonnes valeurs
+      SelectManager.fillSelect(this.elements.subjectSelect, subjects)
+      SelectManager.fillSelect(this.elements.useSelect, uses)
     }
 
     const responses = Array.isArray(data.responses) ? data.responses : []

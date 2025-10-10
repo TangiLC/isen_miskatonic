@@ -1,7 +1,7 @@
 // form-validator.js - Validateur de formulaire
 import { SelectManager } from '../utils/select-manager.js'
 
-export class FormValidator {
+export class QuestionFormValidator {
   constructor (elements, responseManager) {
     this.elements = elements
     this.responseManager = responseManager
