@@ -73,7 +73,7 @@
 
         <div class="container confidentialite">
             <h3>Politique de confidentialité</h3>
-            <button class="toggle-btn" type="button">Masquer la politique de confidentialité</button>
+            <button class="toggle-btn" type="button"><small>Masquer</small> Politique de confidentialité</button>
             <div id="privacy-content" class="content" style=`display:{% if not showLoginForm %}block{% else %}none{%
                 endif %};`>
                 <p>
@@ -111,7 +111,7 @@
                 btn.addEventListener("click", () => {
                     const hidden = content.style.display === "none";
                     content.style.display = hidden ? "block" : "none";
-                    btn.textContent = hidden ? "Masquer la politique de confidentialité" : "Voir la politique de confidentialité";
+                    btn.innerHTML = hidden ? "<small>Masquer</small> Politique de confidentialité" : "<small>Voir</small> Politique de confidentialité";
                 });
             }
 

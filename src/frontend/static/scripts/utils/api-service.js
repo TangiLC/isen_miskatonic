@@ -118,6 +118,24 @@ export class ApiService {
     })
   }
 
+  async addRandomQuestions (id, payload) {
+    const url = `${this.config.apiUrl}/questionnaire/${encodeURIComponent(
+      id
+    )}/random`
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      throw new Error(`HTTP ${res.status}: ${text}`)
+    }
+
+    return res.json()
+  }
+
   // ========== UTILITAIRES ==========
 
   normalizeData (data) {

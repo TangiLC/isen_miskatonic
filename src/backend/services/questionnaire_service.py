@@ -1,3 +1,6 @@
+import random
+from services.question_service import QuestionService
+from models.question import QuestionStatus
 from datetime import datetime
 from typing import List
 from zoneinfo import ZoneInfo
@@ -17,6 +20,7 @@ class QuestionnaireService:
 
     def __init__(self):
         self.repository = QuestionnaireRepository()
+        self.question_service = QuestionService()
 
     ################################################################################
     async def create_questionnaire(
@@ -147,3 +151,84 @@ class QuestionnaireService:
         Retourne la liste complète des questionnaires.
         """
         return await self.repository.get_all_questionnaires()
+
+    ################################################################################
+    async def add_random_questions_to_questionnaire(
+        self,
+        questionnaire_id: str,
+        number: int,
+        subjects: List[str],
+        user_id: int,
+    ) -> tuple[str, Questionnaire]:
+        """
+        Ajoute des questions aléatoires à un questionnaire existant.
+
+        Args:
+            questionnaire_id: ID du questionnaire
+            number: Nombre de questions à ajouter
+            subjects: Liste des sujets pour filtrer les questions
+            user_id: ID de l'utilisateur
+
+        Returns:
+            tuple: (message, questionnaire mis à jour)
+        """
+        # Vérifier que le questionnaire existe
+        existing_questionnaire = await self.repository.get_short_questionnaire_by_id(
+            questionnaire_id
+        )
+        if existing_questionnaire is None:
+            raise LookupError("Questionnaire introuvable")
+
+        # Vérifier les permissions
+        if existing_questionnaire.created_by != user_id:
+            raise PermissionError("Seul le créateur du questionnaire peut le modifier")
+
+        # Extraire les IDs existants
+        existing_ids = {q.id for q in existing_questionnaire.questions}
+
+        # Phase 1 : Construction du pool de candidats (QItem directement, dédupliqués)
+        from models.questionnaire import QItem
+
+        candidates_dict = {}
+        for subject in subjects:
+            questions = await self.question_service.get_questions_by_subject_contains(
+                subject, limit=1000
+            )
+            for q in questions:
+                # Filtrer : ACTIVE et pas déjà dans le questionnaire
+                if (
+                    q.status == QuestionStatus.ACTIVE
+                    and q.id not in existing_ids
+                    and q.id not in candidates_dict
+                ):
+                    candidates_dict[q.id] = QItem(id=q.id, question=q.question)
+
+        candidates = list(candidates_dict.values())
+
+        # Phase 2 : Sélection aléatoire
+        selected_count = min(number, len(candidates))
+        new_qitems = (
+            random.sample(candidates, selected_count) if selected_count > 0 else []
+        )
+
+        # Mise à jour du questionnaire
+        updated_questions = existing_questionnaire.questions + new_qitems
+        update_data = {
+            "questions": [q.model_dump() for q in updated_questions],
+            "edited_at": datetime.now(ZoneInfo("Europe/Paris")).replace(microsecond=0),
+        }
+
+        await self.repository.update_questionnaire(questionnaire_id, update_data)
+
+        # Construction du message
+        if selected_count < number:
+            message = f"Seulement {selected_count} question(s) disponible(s) sur {number} demandée(s) pour les sujets {', '.join(subjects)}"
+        else:
+            message = f"{selected_count} question(s) ajoutée(s) avec succès"
+
+        # Retourner le questionnaire mis à jour
+        updated_questionnaire = await self.repository.get_short_questionnaire_by_id(
+            questionnaire_id
+        )
+
+        return message, updated_questionnaire

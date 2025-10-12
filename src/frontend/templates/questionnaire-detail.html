@@ -75,7 +75,6 @@
 
         btn.addEventListener("click", () => {
             const id = btn.dataset.qrId;
-            console.log("buttonidclick", id)
             if (!id || id == "None") { window.location.href = '/questionnaire' }
             else {
                 navigator.clipboard.writeText(id)

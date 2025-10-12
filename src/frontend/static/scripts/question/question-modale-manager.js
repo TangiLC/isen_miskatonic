@@ -30,8 +30,8 @@ export class QuestionModalManager {
         Utils.hide(this.elements.submitBtn)
       } else {
         Utils.show(this.elements.submitBtn)
-        this.elements.submitBtn.textContent =
-          mode === 'edit' ? 'Modifier' : 'Enregistrer'
+        this.elements.submitBtn.innerText =
+          mode === 'edit' ? `Enregistrer les modifications` : 'Enregistrer'
       }
     }
 

@@ -8,9 +8,9 @@ export class QuestionnaireModalManager {
     this.responseManager = responseManager
     this.validator = validator
     this.currentMode = null
-    this.modalQuestions = [] // Stockage des questions pour la modale
+    this.modalQuestions = []
+    this.onRandomAdd = null
 
-    // Ajouter les nouveaux éléments pour le tableau
     this.elements.modalQuestionsContainer = document.getElementById(
       'qr-modal-questions-container'
     )
@@ -18,6 +18,11 @@ export class QuestionnaireModalManager {
       document.getElementById('qr-modal-qTable')
     this.elements.modalQuestionsTbody =
       this.elements.modalQuestionsTable?.querySelector('tbody')
+    this.elements.randomSection = document.getElementById('qr-random-section')
+    this.elements.randomNumber = document.getElementById('qr-random-number')
+    this.elements.randomSubjects = document.getElementById('qr-random-subjects')
+    this.elements.randomAddBtn = document.getElementById('qr-random-add-btn')
+    this.bindBaseEvents()
   }
 
   setModalMode (mode, data = {}) {
@@ -31,7 +36,6 @@ export class QuestionnaireModalManager {
       this.elements.modalTitle.textContent = titles[mode] || titles.create
     }
 
-    // Gestion des boutons
     const isReadonly = mode === 'view'
 
     if (this.elements.submitBtn) {
@@ -39,8 +43,8 @@ export class QuestionnaireModalManager {
         Utils.hide(this.elements.submitBtn)
       } else {
         Utils.show(this.elements.submitBtn)
-        this.elements.submitBtn.textContent =
-          mode === 'edit' ? 'Modifier' : 'Enregistrer'
+        this.elements.submitBtn.innerText =
+          mode === 'edit' ? `Enregistrer les modifications` : 'Enregistrer'
       }
     }
 
@@ -52,7 +56,6 @@ export class QuestionnaireModalManager {
       }
     }
 
-    // Bouton d'ajout de réponse (si applicable pour questionnaire)
     if (this.elements.addResponseBtn) {
       if (isReadonly) {
         this.elements.addResponseBtn.disabled = true
@@ -63,7 +66,6 @@ export class QuestionnaireModalManager {
       }
     }
 
-    // Masquer les div q-adder en mode view
     const adderDivs = Utils.$$('.q-adder')
     adderDivs.forEach(div => {
       if (isReadonly) {
@@ -73,7 +75,6 @@ export class QuestionnaireModalManager {
       }
     })
 
-    // Afficher/masquer le tableau des questions selon le mode
     if (this.elements.modalQuestionsContainer) {
       if (mode === 'create') {
         this.elements.modalQuestionsContainer.style.display = 'none'
@@ -82,22 +83,31 @@ export class QuestionnaireModalManager {
       }
     }
 
-    // Verrouillage du formulaire
+    if (this.elements.randomSection) {
+      if (mode === 'edit') {
+        this.elements.randomSection.style.display = 'block'
+
+        // En mode create, désactiver jusqu'à création
+        if (this.elements.randomAddBtn) {
+          this.elements.randomAddBtn.disabled = mode === 'create'
+        }
+      } else {
+        this.elements.randomSection.style.display = 'none'
+      }
+    }
+
     Utils.setFormDisabled(this.elements.modal, isReadonly)
   }
 
   populateModal (data, mode = 'view') {
-    // Stocker l'ID pour les modes edit/view
     if (data.id) {
       this.currentQuestionnaireId = data.id
     }
-    // Champs de base
     if (this.elements.titleInput)
       this.elements.titleInput.value = data.title || ''
     if (this.elements.remarkInput)
       this.elements.remarkInput.value = data.remark || ''
 
-    // Informations
     if (this.elements.infoSections && this.elements.infoSections.length >= 3) {
       if (mode === 'view') {
         const createdById = data.created_by || null
@@ -122,7 +132,6 @@ export class QuestionnaireModalManager {
           data.edited_at ? Utils.formatDateTime(data.edited_at) : '-'
         }`
       } else {
-        // create ou edit
         const currentUser = window.APP_CONFIG?.user?.id || 'Vous'
         let createdAt =
           mode === 'create' ? new Date().toISOString() : data.created_at
@@ -136,7 +145,6 @@ export class QuestionnaireModalManager {
       }
     }
 
-    // Subjects et Uses
     const subjects = Array.isArray(data.subjects)
       ? [...new Set(data.subjects)]
       : []
@@ -146,20 +154,15 @@ export class QuestionnaireModalManager {
       SelectManager.fillSelectViewOnly(this.elements.subjectSelect, subjects)
       SelectManager.fillSelectViewOnly(this.elements.useSelect, uses)
     } else {
-      // En mode CREATE/EDIT, les options sont déjà chargées via loadSelectData()
-      // On sélectionne simplement les bonnes valeurs
-      console.log('DEBUG fillSelect:', uses, subjects)
       SelectManager.fillSelect(this.elements.subjectSelect, subjects)
       SelectManager.fillSelect(this.elements.useSelect, uses)
     }
 
-    // Stocker et afficher les questions
     this.modalQuestions = Array.isArray(data.questions)
       ? [...data.questions]
       : []
     this.renderModalQuestionsTable(mode)
 
-    // Gestion des questions du questionnaire (si applicable)
     const questions = Array.isArray(data.questions) ? data.questions : []
     if (this.responseManager && this.responseManager.populateQuestions) {
       this.responseManager.populateQuestions(questions, mode === 'view')
@@ -170,7 +173,16 @@ export class QuestionnaireModalManager {
       this.elements.statusSelect.value = status
     }
 
-    // Configuration du mode
+    if (this.elements.randomSubjects && mode == 'edit') {
+      this.elements.randomSubjects.innerHTML =
+        this.elements.subjectSelect.innerHTML
+
+      const currentSubjects = Array.isArray(subjects) ? subjects : []
+      Array.from(this.elements.randomSubjects.options).forEach(option => {
+        option.selected = currentSubjects.includes(option.value)
+      })
+    }
+
     this.setModalMode(mode, data)
     Utils.show(this.elements.modal)
 
@@ -185,7 +197,6 @@ export class QuestionnaireModalManager {
 
     const isReadonly = mode === 'view'
 
-    // Utiliser les utilitaires partagés pour le rendu
     QuestionnaireTableUtils.renderQuestionsTable(
       this.elements.modalQuestionsTbody,
       this.modalQuestions,
@@ -222,6 +233,44 @@ export class QuestionnaireModalManager {
     if (!result) return
 
     this.renderModalQuestionsTable(this.currentMode)
+  }
+
+  async handleRandomAdd () {
+    const number = parseInt(this.elements.randomNumber?.value || '0')
+    const subjects = SelectManager.collectMultiSelect(
+      this.elements.randomSubjects
+    )
+
+    if (number < 1) {
+      alert('Veuillez saisir un nombre valide de questions')
+      return
+    }
+
+    if (subjects.length === 0) {
+      alert('Veuillez sélectionner au moins un sujet')
+      return
+    }
+
+    if (!this.currentQuestionnaireId) {
+      alert('Erreur: ID du questionnaire manquant')
+      return
+    }
+    if (this.elements.randomAddBtn) {
+      this.elements.randomAddBtn.disabled = true
+    }
+
+    try {
+      if (this.onRandomAdd) {
+        await this.onRandomAdd(this.currentQuestionnaireId, {
+          number,
+          subjects
+        })
+      }
+    } finally {
+      if (this.elements.randomAddBtn) {
+        this.elements.randomAddBtn.disabled = false
+      }
+    }
   }
 
   openModal (mode, data) {
@@ -261,6 +310,10 @@ export class QuestionnaireModalManager {
     if (this.elements.titleInput) this.elements.titleInput.value = ''
     if (this.elements.remarkInput) this.elements.remarkInput.value = ''
     if (this.elements.statusSelect) this.elements.statusSelect.value = 'draft'
+    if (this.elements.randomNumber) this.elements.randomNumber.value = '5'
+    if (this.elements.randomSubjects)
+      SelectManager.clearSelection(this.elements.randomSubjects)
+    if (this.elements.randomAddBtn) this.elements.randomAddBtn.disabled = true
     if (this.elements.infoSections && this.elements.infoSections[1]) {
       this.elements.infoSections[1].innerHTML = `Créé le : ${Utils.formatDateTime(
         new Date().toISOString()
@@ -269,7 +322,7 @@ export class QuestionnaireModalManager {
 
     ;[this.elements.subjectSelect, this.elements.useSelect].forEach(select => {
       if (select) {
-        Utils.$('option:checked', select).forEach(o => (o.selected = false))
+        Utils.$$('option:checked', select).forEach(o => (o.selected = false))
       }
     })
 
@@ -332,6 +385,11 @@ export class QuestionnaireModalManager {
         }
       })
     }
+    if (this.elements.randomAddBtn) {
+      this.elements.randomAddBtn.addEventListener('click', async () => {
+        await this.handleRandomAdd()
+      })
+    }
   }
 
   collectFormData () {
@@ -344,7 +402,6 @@ export class QuestionnaireModalManager {
     )
     const uses = SelectManager.collectMultiSelect(this.elements.useSelect)
 
-    // Utiliser les questions modifiées dans la modale
     let questions = []
     if (this.currentMode === 'edit' || this.currentMode === 'view') {
       questions = this.modalQuestions.map(q => ({
@@ -356,7 +413,6 @@ export class QuestionnaireModalManager {
     }
 
     const payload = { title, subjects, uses, remark, status, questions }
-    // En mode edit, ajouter l'ID du questionnaire
     if (this.currentMode === 'edit' && this.currentQuestionnaireId) {
       payload.id = this.currentQuestionnaireId
     }

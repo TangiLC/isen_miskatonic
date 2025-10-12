@@ -1,6 +1,67 @@
+/* =========================================
+   Variables globales (couleurs & opacités)
+   ========================================= */
+:root {
+	/* Neutres / fonds */
+	--c-bg-main: #f4f4f4;
+	--c-bg-footer: #444;
+	--c-bg-card: #ffffff;
+	--c-bg-light: #f2f2f2;
+	--c-bg-overlay: rgba(200, 200, 200, 0.3);
+	--c-bg-modal: rgba(240, 250, 240, 1);
+
+	/* Brand / accents */
+	--c-accent: #28a745;
+	--c-accent-dark: #124a1f;
+	--c-accent-hover: #30c152;
+	--c-accent-press: #218838;
+	--c-accent-glow: rgba(40, 167, 69, 0.6);
+
+	/* Bleus */
+	--c-blue: #007bff;
+	--c-blue-dark: #0056b3;
+	--c-alice-blue: #f0f8ff;
+	--c-light-blue: #8ee4f3;
+	--c-remark: #0056b3;
+
+	/* Violets / titres */
+	--c-purple: #4b0082;
+
+	/* Gris / textes / bordures */
+	--c-gray-100: #dadada;
+	--c-gray-300: #ccc;
+	--c-gray-500: #737373;
+	--c-gray-800: #333;
+	--c-gray-900: #111;
+	--c-lightgray: lightgray;
+
+	/* États */
+	--c-error-bg: brown;
+	--c-error-txt: #ffffff;
+	--c-success-bg: darkgreen;
+	--c-success-txt: #ffffff;
+	--c-danger: #c00;
+	--c-danger-text: darkred;
+
+	/* Divers (tables & bordures spécifiques) */
+	--c-border-dark: darkblue;
+	--c-border-default: black;
+
+	/* Highlights / effets */
+	--c-highlight: rgb(24, 252, 3);
+	--c-correct-bg: rgba(24, 252, 3, 0.5);
+
+	/* Textes */
+	--c-text-invert: #ffffff;
+	--c-text-default: rgb(13, 13, 14);
+}
+
+/* ==============================
+   Base & reset léger
+   ============================== */
 body {
 	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
+	background-color: var(--c-bg-main);
 	margin: 0;
 	padding: 0;
 }
@@ -21,29 +82,35 @@ main {
 	margin: auto;
 }
 
+/* ==============================
+   Pied de page
+   ============================== */
 footer {
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background: #222;
-	color: white;
+	background: var(--c-bg-footer);
+	color: var(--c-text-invert);
 	text-align: center;
 	padding: 0.3rem;
 	z-index: 100;
 	flex: 1;
 }
 
+/* ==============================
+   Navigation / Header
+   ============================== */
 nav {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	height: 2.8rem;
-	background-color: #dadada;
+	background-color: var(--c-gray-100);
 	width: 100%;
 	margin-top: 0.2rem;
 	padding-bottom: 0.9rem;
-	border-bottom: 2px solid #28a745;
+	border-bottom: 2px solid var(--c-accent);
 }
 
 nav .nav-group {
@@ -57,9 +124,9 @@ nav .profil {
 	height: 2.5rem;
 	width: 2.5rem;
 	border-radius: 50%;
-	border: 2px solid #28a745;
-	box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
-	background-color: #f2f2f2;
+	border: 2px solid var(--c-accent);
+	box-shadow: 0 0 10px var(--c-accent-glow);
+	background-color: var(--c-bg-light);
 }
 
 nav a {
@@ -84,10 +151,10 @@ nav a {
 	padding: 0.5rem 2rem;
 	height: 70%;
 	line-height: 2rem;
-	background-color: #124a1f;
+	background-color: var(--c-accent-dark);
 	border: none;
-	border-radius: 5px 5px 0px 0px;
-	color: #737373;
+	border-radius: 5px 5px 0 0;
+	color: var(--c-gray-500);
 	font-size: 1rem;
 	cursor: pointer;
 	margin-top: 0.8rem;
@@ -96,22 +163,27 @@ nav a {
 .nav-button.active {
 	height: 100%;
 	line-height: 2.6rem;
-	background-color: #28a745;
-	color: #fff;
-	margin-top: 0px;
+	background-color: var(--c-accent);
+	color: var(--c-text-invert);
+	margin-top: 0;
 }
-
 .nav-button:hover {
-	background-color: #30c152;
-	color: #fff;
+	background-color: var(--c-accent-hover);
+	color: var(--c-text-invert);
 }
 
+/* ==============================
+   Titres
+   ============================== */
 h1,
 h2 {
 	text-align: center;
-	color: #4b0082;
+	color: var(--c-purple);
 }
 
+/* ==============================
+   Layout principal / cartes
+   ============================== */
 .main {
 	display: flex;
 	justify-content: center;
@@ -119,10 +191,6 @@ h2 {
 	gap: 2rem;
 	flex-wrap: wrap;
 	margin-top: 2rem;
-}
-
-.form-container h3 {
-	text-align: center;
 }
 
 /* Carrés */
@@ -134,14 +202,19 @@ h2 {
 	box-sizing: border-box;
 }
 
-/* Formulaire */
+/* ==============================
+   Formulaires & confidentialité
+   ============================== */
 .form-container {
-	background: #8ee4f3;
+	background: var(--c-light-blue);
+}
+.form-container h3 {
+	text-align: center;
 }
 
 /* Confidentialité */
 .confidentialite {
-	background: #f0f8ff;
+	background: var(--c-alice-blue);
 }
 
 /* Champs formulaire */
@@ -149,90 +222,80 @@ h2 {
 	margin-bottom: 1rem;
 	text-align: left;
 }
-
 .field label {
 	display: block;
 	font-weight: bold;
 	margin-bottom: 0.3rem;
 }
-
 .field input {
 	width: 100%;
 	padding: 0.5rem;
 	border-radius: 15px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--c-gray-300);
 	box-sizing: border-box;
 }
 
-/* Boutons */
+/* ==============================
+   Boutons
+   ============================== */
 button {
 	width: 100%;
 	padding: 0.7rem;
-	background-color: #28a745;
+	background-color: var(--c-accent);
 	border: none;
 	border-radius: 5px;
-	color: white;
+	color: var(--c-text-invert);
 	font-size: 1rem;
 	cursor: pointer;
 	margin-top: 0.5rem;
 	height: 2.6rem;
 }
-
 button:hover {
-	background-color: #218838;
+	background-color: var(--c-accent-press);
 }
-
 button:disabled {
-	background-color: lightgray;
+	background-color: var(--c-lightgray);
 	cursor: not-allowed;
 }
 
 /* Bouton toggle pour confidentialité */
 .toggle-btn {
-	background-color: #007bff;
+	background-color: var(--c-blue);
 	margin-bottom: 1rem;
 }
-
 .toggle-btn:hover {
-	background-color: #0056b3;
+	background-color: var(--c-blue-dark);
 }
 
+/* Liens dans paragraphes */
 .content p {
 	margin: 0.5rem 0;
 }
-
-/* Flexibilité mobile */
-@media (max-width: 800px) {
-	.main {
-		flex-direction: column;
-		align-items: center;
-	}
-}
-
 p a {
 	text-decoration: none;
-	color: #007bff;
+	color: var(--c-blue);
 }
-
 p a:hover {
 	text-decoration: underline;
 }
 
-/* Section rôle */
+/* ==============================
+   Section rôle & états
+   ============================== */
 .form-container h4 {
 	text-align: center;
 	margin-bottom: 1rem;
-	color: #333;
+	color: var(--c-gray-800);
 }
 
 .error {
-	background-color: brown;
-	color: white;
+	background-color: var(--c-error-bg);
+	color: var(--c-error-txt);
 }
 
 .success {
-	background-color: darkgreen;
-	color: white;
+	background-color: var(--c-success-bg);
+	color: var(--c-success-txt);
 }
 
 .roles {
@@ -260,24 +323,27 @@ p a:hover {
 
 .role-card:hover img {
 	transform: scale(1.1);
-	border: 2px solid #28a745;
-	box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+	border: 2px solid var(--c-accent);
+	box-shadow: 0 0 10px var(--c-accent-glow);
 }
 
 .role-card p {
 	margin-top: 0.5rem;
 	font-weight: bold;
-	color: #4b0082;
+	color: var(--c-purple);
 }
 
 #create-account:disabled,
 #submit-btn:disabled {
 	background-color: #ccc;
-	color: #666;
+	color: var(--c-gray-500);
 	cursor: not-allowed;
 	opacity: 0.7;
 }
 
+/* ==============================
+   Grilles / conteneurs divers
+   ============================== */
 .card-container {
 	display: flex;
 	flex-direction: row;
@@ -302,8 +368,8 @@ p a:hover {
 	overflow-x: hidden;
 	max-height: 12rem;
 	border-radius: 6px;
-	border: 1px solid darkblue;
-	box-shadow: 0 0 20px rgb(24, 252, 3);
+	border: 1px solid var(--c-border-dark);
+	box-shadow: 0 0 20px var(--c-highlight);
 }
 
 .button-info-container {
@@ -320,16 +386,15 @@ p a:hover {
 	width: 90%;
 	padding: 0.7rem;
 	margin: 0.4rem auto;
-	background-color: #28a745;
+	background-color: var(--c-accent);
 	border-radius: 5px;
-	color: white;
+	color: var(--c-text-invert);
 	font-size: 1rem;
 	cursor: pointer;
 }
-
 .copy-button.copied {
-	color: #28a745;
-	background-color: white;
+	color: var(--c-accent);
+	background-color: var(--c-bg-card);
 }
 
 .button-info-container > div {
@@ -344,11 +409,13 @@ p a:hover {
 	margin-bottom: 1.1rem;
 	padding-top: 0.1rem;
 }
-
 .import-csv form {
 	padding: 0.6rem;
 }
 
+/* ==============================
+   Tables & listes
+   ============================== */
 #questionsTable,
 #questionnairesTable,
 #questionnairesTable,
@@ -364,7 +431,7 @@ p a:hover {
 	position: sticky;
 	top: 0;
 	z-index: 2;
-	background-color: lightgray;
+	background-color: var(--c-lightgray);
 }
 #questionsTable th,
 #questionnairesTable th,
@@ -411,7 +478,7 @@ p a:hover {
 #questionnairesTable td,
 #qr-modal-qTable th,
 #qr-modal-qTable td {
-	border: 1px solid black;
+	border: 1px solid var(--c-border-default);
 	padding: 0.25rem 0.5rem;
 	text-align: left;
 	overflow: hidden;
@@ -433,24 +500,29 @@ p a:hover {
 	padding: 0.3rem;
 }
 
+/* ==============================
+   Boutons d'action icône
+   ============================== */
 .action-icon-btn {
 	font-size: 0.8rem;
 	padding: 0.3rem;
 	text-align: center;
 	width: 30%;
 	margin: 1px;
+	height: auto;
 }
-
 .action-icon-btn:disabled {
 	background-color: #ccc;
-	color: #666;
+	color: var(--c-gray-500);
 }
-
 .action-icon-btn.delete {
-	background-color: #c00;
-	color: darkred;
+	background-color: var(--c-danger);
+	color: var(--c-danger-text);
 }
 
+/* ==============================
+   Modales & overlays
+   ============================== */
 #question-modal,
 #questionnaire-modal {
 	width: 100%;
@@ -461,25 +533,31 @@ p a:hover {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 300;
-	background-color: rgba(200, 200, 200, 0.3);
+	background-color: var(--c-bg-overlay);
 }
 #question-modal .card-container,
 #questionnaire-modal .card-container {
-	border: 1px solid black;
-	background-color: rgba(240, 250, 240, 1);
+	border: 1px solid var(--c-border-default);
+	background-color: var(--c-bg-modal);
 	border-radius: 6px;
 	padding: 0.8rem;
 	min-height: 35rem;
 	width: 92%;
 	margin-top: 2rem;
-	box-shadow: 0 0 20px rgb(24, 252, 3);
+	box-shadow: 0 0 20px var(--c-highlight);
 }
 
+/* ==============================
+   États de réponse
+   ============================== */
 .response-row.correct input {
-	border: 2px solid green;
-	background-color: rgba(24, 252, 3, 0.5);
+	border: 2px solid var(--c-success-bg);
+	background-color: var(--c-correct-bg);
 }
 
+/* ==============================
+   Fiches question / grille info
+   ============================== */
 .question-detail,
 .q-info {
 	display: grid;
@@ -556,7 +634,7 @@ p a:hover {
 .q-subject,
 .qr-subject,
 .q-use,
-.qr-use {
+qr-use {
 	grid-column: span 2;
 }
 
@@ -573,7 +651,7 @@ p a:hover {
 .q-adder input {
 	width: 92%;
 	padding: 8px;
-	margin: 4px 0px;
+	margin: 4px 0;
 }
 
 .q-buttons {
@@ -601,7 +679,7 @@ p a:hover {
 .remove-response {
 	width: 5rem;
 	margin-top: 0.1rem;
-	background-color: red;
+	background-color: var(--c-danger);
 }
 
 .questionnaire-meta {
@@ -633,7 +711,7 @@ p a:hover {
 
 h4 {
 	text-align: center;
-	color: #2ef706;
+	color: var(--c-highlight);
 	display: block;
 }
 
@@ -644,22 +722,25 @@ h4 {
 .remark {
 	margin: 0.1rem;
 	font-size: 0.8rem;
-	color: #0056b3;
+	color: var(--c-remark);
 }
 
+/* ==============================
+   Quiz
+   ============================== */
 .quiz-container {
 	position: relative;
 	margin: 0.5rem auto;
 	padding: 0.2rem 1.5rem;
-	background: white;
+	background: var(--c-bg-card);
 	border-radius: 8px;
 	max-width: 70%;
-	box-shadow: 0 0 20px rgb(24, 252, 3);
+	box-shadow: 0 0 20px var(--c-highlight);
 }
 
 .question {
 	margin-bottom: 20px;
-	color: rgb(13, 13, 14);
+	color: var(--c-text-default);
 }
 
 .options label {
@@ -668,8 +749,8 @@ h4 {
 }
 
 #submit:hover {
-	background: #27ae60;
-	color: white;
+	background: var(--c-highlight);
+	color: var(--c-text-invert);
 }
 
 #result {
@@ -689,12 +770,124 @@ h4 {
 
 /* Réponse fausse */
 .wrong {
-	color: red;
-	font-weight: bold;
+	color: var(--c-danger);
 }
 
 /* Réponse correcte */
 .correct {
-	color: green;
-	font-weight: bold;
+	color: var(--c-success-bg);
+}
+
+/* ==============================
+   Responsive existant
+   ============================== */
+@media (max-width: 800px) {
+	.main {
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+/* =========================================
+   AJUSTEMENTS RESPONSIVES SUPPLÉMENTAIRES
+   (ajoutés en fin de fichier, sans suppression)
+   ========================================= */
+
+/* 1) Renforts typographiques & espacements */
+@media (max-width: 900px) {
+	.nav-button {
+		padding: 0.4rem 1rem;
+	}
+	.container {
+		width: min(100%, 380px);
+	}
+	.quiz-container {
+		max-width: 90%;
+	}
+}
+
+/* 2) Navigation : meilleure tenue sur mobile étroit */
+@media (max-width: 700px) {
+	nav {
+		flex-wrap: wrap;
+		height: auto;
+		row-gap: 0.4rem;
+		padding-bottom: 0.4rem;
+	}
+	.nav-group {
+		flex: 1 1 100%;
+		justify-content: center;
+	}
+	.nav-logo {
+		max-width: 3.2rem;
+	}
+	.nav-button {
+		height: auto;
+		line-height: 1.6rem;
+		margin-top: 0.4rem;
+	}
+}
+
+/* 3) Grilles question / info : passage en 2 colonnes puis 1 */
+@media (max-width: 1100px) {
+	.question-detail,
+	.q-info {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+@media (max-width: 640px) {
+	.question-detail,
+	.q-info {
+		grid-template-columns: 1fr;
+	}
+	.q-question,
+	.q-remark,
+	.q-info,
+	.table-container,
+	.q-response,
+	.q-buttons {
+		grid-column: span 1;
+	}
+	.q-question,
+	.q-remark {
+		flex-direction: column;
+	}
+	.q-question input,
+	.q-remark input {
+		width: 100%;
+	}
+}
+
+/* 4) Tables : scroll horizontal non intrusif sur écrans étroits */
+@media (max-width: 900px) {
+	#questionsTable,
+	#questionnairesTable,
+	#qr-modal-qTable {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+}
+
+/* 5) Boutons d’action : largeur fluide sous 480px */
+@media (max-width: 480px) {
+	.action-icon-btn {
+		width: auto;
+		min-width: 32%;
+	}
+	#loadQ,
+	#loadQR,
+	#createQ,
+	#importQ,
+	#selectQR,
+	#submitQRid {
+		width: 90%;
+	}
+}
+
+/* 6) Footer : éviter le chevauchement avec contenus longs */
+@media (max-width: 700px) {
+	main {
+		padding-bottom: 3.8rem; /* marge de sécurité pour le footer fixe */
+	}
 }

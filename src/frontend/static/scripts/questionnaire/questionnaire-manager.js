@@ -24,6 +24,9 @@ export class QuestionnaireManager {
       null,
       this.validator
     )
+    this.modalManager.onRandomAdd = async (id, data) => {
+      await this.handleRandomAdd(id, data)
+    }
 
     this.init()
   }
@@ -52,6 +55,12 @@ export class QuestionnaireManager {
       remarkInput: document.getElementById('qr-remark-input'),
       statusSelect: document.getElementById('qr-status-select'),
 
+      // Random
+      randomSection: document.getElementById('qr-random-section'),
+      randomNumber: document.getElementById('qr-random-number'),
+      randomSubjects: document.getElementById('qr-random-subjects'),
+      randomAddBtn: document.getElementById('qr-random-add-btn'),
+
       // Boutons d'ajout
       subjectAdd: document.getElementById('qr-subject-add'),
       subjectAddBtn: document.getElementById('qr-subject-add-btn'),
@@ -67,6 +76,7 @@ export class QuestionnaireManager {
 
   showMessage (msg = '', type = 'info') {
     const feedback = this.elements.resultMessage
+    console.log('debug SHOWMSSG', msg, type, feedback)
     if (!feedback) return
 
     feedback.textContent = msg
@@ -95,7 +105,7 @@ export class QuestionnaireManager {
 
       if (this.elements.scrollCard) this.elements.scrollCard.style.display = ''
       if (msg) {
-        const count = this.elements.tableBody?.rows?.length ?? 0
+        const count = list.length
         msg.textContent = `${count} questionnaire(s) chargé(s).`
         msg.dataset.type = 'success'
         msg.classList.add('success')
@@ -227,6 +237,7 @@ export class QuestionnaireManager {
       actionsCell.className = 'actions-cell'
 
       const actions = this.getActionsForQuestionnaire(q)
+
       actions.forEach(btn => actionsCell.appendChild(btn))
 
       tr.appendChild(actionsCell)
@@ -269,6 +280,30 @@ export class QuestionnaireManager {
     } catch (error) {
       console.error('Erreur sélection:', error)
       this.showMessage('Impossible de sélectionner ce questionnaire', 'error')
+    }
+  }
+
+  async handleRandomAdd (id, data) {
+    try {
+      this.showMessage('Ajout des questions en cours...', 'info')
+
+      const result = await this.apiService.addRandomQuestions(id, data)
+
+      this.showMessage(
+        result.message || 'Questions ajoutées avec succès',
+        'success'
+      )
+
+      // Mettre à jour la modale avec les nouvelles données
+      if (result.response) {
+        this.modalManager.modalQuestions = result.response.questions || []
+        this.modalManager.renderModalQuestionsTable(
+          this.modalManager.currentMode
+        )
+      }
+    } catch (error) {
+      console.error('Erreur ajout aléatoire:', error)
+      this.showMessage(`Erreur: ${error.message}`, 'error')
     }
   }
 
@@ -347,8 +382,6 @@ export class QuestionnaireManager {
       }
 
       this.modalManager.closeModal()
-
-      // Recharger la liste
       await this.handleLoadClick()
     } catch (error) {
       console.error('Erreur lors de la soumission:', error)
@@ -364,8 +397,6 @@ export class QuestionnaireManager {
 
       SelectManager.fillSelectOptions(this.elements.subjectSelect, subjects)
       SelectManager.fillSelectOptions(this.elements.useSelect, uses)
-
-      console.log('Données chargées:', { subjects, uses })
     } catch (error) {
       console.warn('Erreur chargement données select:', error)
     }

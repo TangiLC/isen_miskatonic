@@ -8,6 +8,8 @@ from schemas.questionnaire import (
     QuestionnaireCreate,
     QuestionnaireResponse,
     QuestionnaireUpdate,
+    QuestionnaireRandomAdd,
+    QuestionnaireAddResponse,
 )
 from services.questionnaire_service import QuestionnaireService
 
@@ -163,6 +165,75 @@ async def update_questionnaire(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la mise à jour: {str(e)}",
+        )
+
+
+@router.patch(
+    "/api/questionnaire/{id}/random",
+    response_model=QuestionnaireAddResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Ajouter des questions aléatoires (nombre défini, sujets définis)",
+    description="Ajoute des questions aléatoires au questionnaire selon les sujets fournis. Seul le créateur peut modifier son questionnaire.",
+    responses={
+        200: {
+            "description": "Questions ajoutées avec succès",
+            "model": QuestionnaireAddResponse,
+        },
+        400: {"description": "ID invalide ou données invalides"},
+        401: {"description": "Token d'authentification requis"},
+        403: {"description": "Accès refusé - seul le créateur peut modifier"},
+        404: {"description": "Questionnaire introuvable"},
+        500: {"description": "Erreur interne du serveur"},
+    },
+    tags=["Questionnaires"],
+)
+async def add_random_questions(
+    id: str = Path(..., description="ID du questionnaire"),
+    random_data: QuestionnaireRandomAdd = ...,
+    current_user: User = Depends(get_current_user),
+) -> QuestionnaireAddResponse:
+    try:
+        user_id = current_user.id
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token JWT invalide - ID utilisateur manquant",
+            )
+        if isinstance(user_id, str) and user_id.isdigit():
+            user_id = int(user_id)
+
+        message, updated = (
+            await questionnaire_service.add_random_questions_to_questionnaire(
+                id, random_data.number, random_data.subjects, user_id
+            )
+        )
+
+        return QuestionnaireAddResponse(
+            message=message,
+            response=QuestionnaireResponse(
+                id=updated.id,
+                title=updated.title,
+                subjects=updated.subjects,
+                uses=updated.uses,
+                questions=updated.questions,
+                remark=updated.remark,
+                status=updated.status,
+                created_by=updated.created_by,
+                created_at=updated.created_at,
+                edited_at=updated.edited_at,
+            ),
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except LookupError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'ajout de questions: {str(e)}",
         )
 
 

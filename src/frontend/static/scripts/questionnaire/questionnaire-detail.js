@@ -7,8 +7,9 @@ class QuestionnaireDetail {
     this.apiService = new QRApiService(this.config)
     this.questionnaireId = this.config.questionnaireId
     this.currentQuestionnaire = null
-    this.draftQuestions = [] // Brouillon local des questions
+    this.draftQuestions = []
     this.hasUnsavedChanges = false
+    this.canEdit = false
 
     this.elements = this.getElements()
     this.init()
@@ -32,7 +33,7 @@ class QuestionnaireDetail {
       tbody: document.querySelector('#questionnaireTable tbody'),
       card: document.getElementById('questionnaire-questions-card'),
       container: document.querySelector('.questionnaire-view-container'),
-      feedback: document.getElementById('resultMessage'),
+      //feedback: document.getElementById('resultMessage'),
       cancelBtn: document.getElementById('qr-detail-cancel-btn'),
       saveBtn: document.getElementById('qr-detail-save-btn'),
       actionsContainer: document.getElementById('qr-detail-actions')
@@ -49,6 +50,8 @@ class QuestionnaireDetail {
   }
 
   showMessage (msg, type = 'info') {
+    const feedback = document.getElementById('resultMessage')
+    console.log('debug Detail Show Mssg', msg, this.elements.feedback)
     if (!this.elements.feedback) return
     this.elements.feedback.textContent = msg
     this.elements.feedback.dataset.type = type
@@ -126,6 +129,8 @@ class QuestionnaireDetail {
       // Récupérer les données du questionnaire
       const questionnaire = await this.apiService.fetchQuestionnaireById(id)
       this.currentQuestionnaire = questionnaire
+      this.canEdit =
+        String(questionnaire.created_by) === String(this.config.userId)
 
       // Initialiser le brouillon avec les questions actuelles
       this.draftQuestions = [...(questionnaire.questions || [])]
@@ -200,7 +205,7 @@ class QuestionnaireDetail {
       this.elements.tbody,
       questions,
       {
-        isReadonly: false,
+        isReadonly: !this.canEdit,
         callbacks: {
           onMove: (index, direction) => this.moveQuestion(index, direction),
           onRemove: (index, text) => this.removeQuestionByIndex(index, text)
@@ -349,13 +354,14 @@ class QuestionnaireDetail {
     if (this.elements.actionsContainer) {
       this.elements.actionsContainer.style.display = 'flex'
     }
+    const shouldDisable = !this.hasUnsavedChanges || !this.canEdit
 
     if (this.elements.cancelBtn) {
-      this.elements.cancelBtn.disabled = !this.hasUnsavedChanges
+      this.elements.cancelBtn.disabled = shouldDisable
     }
 
     if (this.elements.saveBtn) {
-      this.elements.saveBtn.disabled = !this.hasUnsavedChanges
+      this.elements.saveBtn.disabled = shouldDisable
     }
   }
 

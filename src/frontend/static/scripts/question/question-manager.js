@@ -204,8 +204,6 @@ export class QuestionManager {
 
       SelectManager.fillSelectOptions(this.elements.subjectSelect, subjects)
       SelectManager.fillSelectOptions(this.elements.useSelect, uses)
-
-      console.log('Données chargées:', { subjects, uses })
     } catch (error) {
       console.warn('Erreur chargement données select:', error)
     }

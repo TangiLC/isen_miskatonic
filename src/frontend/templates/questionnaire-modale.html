@@ -23,7 +23,9 @@
                     <select id="qr-subject-select" multiple size="4" aria-label="Subjects"></select>
                     <div class="q-adder">
                         <input id="qr-subject-add" type="text" placeholder="Ajouter un sujet..." />
-                        <button type="button" id="qr-subject-add-btn">Ajouter un sujet</button>
+                        <button type="button" id="qr-subject-add-btn">
+
+                            Ajouter un sujet</button>
                     </div>
                 </div>
             </div>
@@ -35,7 +37,9 @@
                     <select id="qr-use-select" multiple size="4" aria-label="Uses"></select>
                     <div class="q-adder">
                         <input id="qr-use-add" type="text" placeholder="Ajouter un usage..." />
-                        <button type="button" id="qr-use-add-btn">Ajouter un usage</button>
+                        <button type="button" id="qr-use-add-btn">
+
+                            Ajouter un usage</button>
                     </div>
                 </div>
             </div>
@@ -78,12 +82,39 @@
                         </tbody>
                     </table>
                 </card>
+
+                <div id="qr-random-section" class="q-random" style="display:none;">
+
+                    <div class="qr-random">
+                        <div>
+                            <h3>Ajouter des questions aléatoires</h3>
+                            <label for="qr-random-number">Nombre de questions</label>
+                            <input id="qr-random-number" type="number" min="1" max="50" value="5" />
+                            <div class="random-info"></div>
+                        </div>
+                        <div class="q-row">
+                            <label for="qr-random-subjects">Sujets<br><small>(Ctrl pour choix multiple)</small></label>
+                            <select id="qr-random-subjects" multiple size="4"></select>
+                        </div>
+
+                        <button type="button" id="qr-random-add-btn" disabled>
+
+                            Ajout aléatoire</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Boutons d'action (enregistrer/réinitialiser) -->
             <div class="q-buttons">
-                <button type="button" id="qr-submit-btn">Enregistrer</button>
-                <button type="button" id="qr-reset-btn" class="secondary">Réinitialiser</button>
+
+
+                <button type="button" id="qr-submit-btn">
+
+                    Enregistrer</button>
+                <button type="button" id="qr-reset-btn" class="secondary">
+
+                    Réinitialiser</button>
+                <div id="resultMessage" class="info"></div>
             </div>
 
         </card>

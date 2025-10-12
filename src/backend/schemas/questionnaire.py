@@ -69,3 +69,13 @@ class QuestionnaireUpdate(BaseModel):
     status: Optional[QuestionnaireStatus] = Field(
         None, description="Statut du questionnaire (draft/active/archive)"
     )
+
+
+class QuestionnaireRandomAdd(BaseModel):
+    number: int
+    subjects: List[str]
+
+
+class QuestionnaireAddResponse(BaseModel):
+    message: str
+    response: QuestionnaireResponse
