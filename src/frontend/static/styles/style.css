@@ -78,8 +78,8 @@ select {
 }
 
 main {
-	margin-bottom: 1.8rem;
 	margin: auto;
+	margin-bottom: 3rem;
 }
 
 /* ==============================
@@ -150,7 +150,7 @@ nav a {
 	flex-direction: row;
 	padding: 0.5rem 2rem;
 	height: 70%;
-	line-height: 2rem;
+
 	background-color: var(--c-accent-dark);
 	border: none;
 	border-radius: 5px 5px 0 0;
@@ -162,7 +162,7 @@ nav a {
 }
 .nav-button.active {
 	height: 100%;
-	line-height: 2.6rem;
+
 	background-color: var(--c-accent);
 	color: var(--c-text-invert);
 	margin-top: 0;
@@ -248,7 +248,7 @@ button {
 	font-size: 1rem;
 	cursor: pointer;
 	margin-top: 0.5rem;
-	height: 2.6rem;
+	min-height: 2.6rem;
 }
 button:hover {
 	background-color: var(--c-accent-press);
@@ -344,6 +344,43 @@ p a:hover {
 /* ==============================
    Grilles / conteneurs divers
    ============================== */
+
+.filter-grid-container {
+	display: flex;
+	flex-direction: row;
+	gap: 0.2rem;
+	width: 95%;
+	margin: auto;
+}
+.filter-grid {
+	display: grid;
+	grid-template-columns: repeat(9, 1fr);
+	gap: 0.2rem;
+	margin: auto;
+}
+
+.filter-title {
+	display: flex;
+	align-items: center;
+}
+.subject-filter-btn,
+.use-filter-btn {
+	height: 1.5rem;
+	font-size: 0.8rem;
+	background-color: var(--c-gray-500);
+}
+.subject-filter-btn:hover,
+.use-filter-btn:hover {
+	background-color: var(--c-lightgray);
+	border: 1px solid white;
+}
+
+.subject-filter-btn.inactive,
+.use-filter-btn.inactive {
+	text-decoration: line-through;
+	background-color: var(--c-lightgray);
+}
+
 .card-container {
 	display: flex;
 	flex-direction: row;
@@ -823,8 +860,8 @@ h4 {
 	}
 	.nav-button {
 		height: auto;
-		line-height: 1.6rem;
-		margin-top: 0.4rem;
+		line-height: auto;
+		margin-top: 0.3rem;
 	}
 }
 
@@ -885,9 +922,8 @@ h4 {
 	}
 }
 
-/* 6) Footer : éviter le chevauchement avec contenus longs */
 @media (max-width: 700px) {
 	main {
-		padding-bottom: 3.8rem; /* marge de sécurité pour le footer fixe */
+		padding-bottom: 4rem;
 	}
 }

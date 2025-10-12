@@ -4,6 +4,10 @@ class TableManager {
     this.elements = this.getElements()
     this.fullData = []
     this.userNameCache = new Map()
+    this.activeSubjects = new Set() // Sujets actifs pour le filtrage
+    this.allSubjects = [] // Liste de tous les sujets disponibles
+    this.activeUses = new Set() // Uses actifs pour le filtrage
+    this.allUses = [] // Liste de tous les uses disponibles
     this.init()
   }
 
@@ -13,7 +17,10 @@ class TableManager {
       feedback: document.getElementById('resultMessage'),
       scrollCard: document.getElementById('scroll-card'),
       table: document.getElementById('questionsTable'),
-      tbody: document.querySelector('#questionsTable tbody')
+      tbody: document.querySelector('#questionsTable tbody'),
+      subjectFilters: document.getElementById('subject-filters'),
+      useFilters: document.getElementById('use-filters'),
+      resetFiltersBtn: document.getElementById('reset-filters')
     }
   }
 
@@ -127,7 +134,7 @@ class TableManager {
     return actions
   }
 
-  // Handlers d'actions - délégués aux fonctions globales existantes
+  // Handlers d'actions
   handleViewDetails (id) {
     if (typeof see_details === 'function') {
       see_details(id)
@@ -145,7 +152,6 @@ class TableManager {
   }
 
   handleAddToQuiz (question) {
-    // Utiliser le composant questionnaireDetail pour ajouter la question
     if (window.questionnaireDetail) {
       window.questionnaireDetail.addQuestion(question.id)
     } else {
@@ -168,6 +174,184 @@ class TableManager {
     this.userNameCache.set(userId, userName)
     return userName
   }
+
+  // === GESTION DES FILTRES SUBJECTS ===
+
+  async loadSubjects () {
+    try {
+      const response = await fetch(`${this.config.apiUrl}/questions/subjects`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this.config.token}`,
+          Accept: 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP ${response.status}`)
+      }
+
+      this.allSubjects = await response.json()
+
+      // Tous les sujets sont actifs par défaut
+      this.activeSubjects = new Set(this.allSubjects)
+
+      this.renderSubjectFilters()
+    } catch (error) {
+      console.error('Erreur lors du chargement des sujets:', error)
+    }
+  }
+
+  renderSubjectFilters () {
+    if (!this.elements.subjectFilters) return
+
+    this.elements.subjectFilters.innerHTML = ''
+
+    this.allSubjects.forEach(subject => {
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'subject-filter-btn'
+      btn.textContent = subject
+      btn.dataset.subject = subject
+
+      // État actif par défaut
+      if (!this.activeSubjects.has(subject)) {
+        btn.classList.add('inactive')
+      }
+
+      btn.addEventListener('click', () => this.toggleSubjectFilter(subject))
+      this.elements.subjectFilters.appendChild(btn)
+    })
+  }
+
+  toggleSubjectFilter (subject) {
+    if (this.activeSubjects.has(subject)) {
+      this.activeSubjects.delete(subject)
+    } else {
+      this.activeSubjects.add(subject)
+    }
+
+    // Mise à jour visuelle du bouton
+    const btn = this.elements.subjectFilters.querySelector(
+      `[data-subject="${subject}"]`
+    )
+    if (btn) {
+      btn.classList.toggle('inactive')
+    }
+
+    // Appliquer le filtre
+    this.applyFilters()
+  }
+
+  // === GESTION DES FILTRES USES ===
+
+  async loadUses () {
+    try {
+      const response = await fetch(`${this.config.apiUrl}/questions/uses`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this.config.token}`,
+          Accept: 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP ${response.status}`)
+      }
+
+      this.allUses = await response.json()
+
+      // Tous les uses sont actifs par défaut
+      this.activeUses = new Set(this.allUses)
+
+      this.renderUseFilters()
+    } catch (error) {
+      console.error('Erreur lors du chargement des uses:', error)
+    }
+  }
+
+  renderUseFilters () {
+    if (!this.elements.useFilters) return
+
+    this.elements.useFilters.innerHTML = ''
+
+    this.allUses.forEach(use => {
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'use-filter-btn'
+      btn.textContent = use
+      btn.dataset.use = use
+
+      // État actif par défaut
+      if (!this.activeUses.has(use)) {
+        btn.classList.add('inactive')
+      }
+
+      btn.addEventListener('click', () => this.toggleUseFilter(use))
+      this.elements.useFilters.appendChild(btn)
+    })
+  }
+
+  toggleUseFilter (use) {
+    if (this.activeUses.has(use)) {
+      this.activeUses.delete(use)
+    } else {
+      this.activeUses.add(use)
+    }
+
+    // Mise à jour visuelle du bouton
+    const btn = this.elements.useFilters.querySelector(`[data-use="${use}"]`)
+    if (btn) {
+      btn.classList.toggle('inactive')
+    }
+
+    // Appliquer le filtre
+    this.applyFilters()
+  }
+
+  // === GESTION COMBINÉE DES FILTRES ===
+
+  resetFilters () {
+    // Réactiver tous les sujets et uses
+    this.activeSubjects = new Set(this.allSubjects)
+    this.activeUses = new Set(this.allUses)
+
+    // Mise à jour visuelle
+    this.$$('.subject-filter-btn, .use-filter-btn').forEach(btn => {
+      btn.classList.remove('inactive')
+    })
+
+    // Réafficher toutes les questions
+    this.applyFilters()
+  }
+
+  applyFilters () {
+    // Filtrer les questions selon les sujets ET uses actifs
+    const filteredData = this.fullData.filter(question => {
+      // Vérifier les sujets
+      const subjects = Array.isArray(question.subject)
+        ? question.subject
+        : [question.subject]
+
+      const matchesSubject =
+        this.activeSubjects.size === 0 ||
+        subjects.some(s => this.activeSubjects.has(s))
+
+      // Vérifier les uses
+      const uses = Array.isArray(question.use) ? question.use : [question.use]
+
+      const matchesUse =
+        this.activeUses.size === 0 || uses.some(u => this.activeUses.has(u))
+
+      // La question doit correspondre aux deux critères
+      return matchesSubject && matchesUse
+    })
+
+    this.renderTable(filteredData)
+  }
+
+  // === FIN GESTION DES FILTRES ===
+
   // Rendu du tableau
   async renderTable (data = []) {
     if (!this.elements.tbody) return
@@ -177,6 +361,7 @@ class TableManager {
     for (const item of data) {
       const tr = document.createElement('tr')
       const creatorName = await this.getUserNameFromCache(item.created_by)
+
       // Colonnes de données
       const columns = [
         { content: this.formatId(item.id) },
@@ -242,7 +427,7 @@ class TableManager {
       const data = await response.json()
       this.fullData = Array.isArray(data) ? data : []
 
-      this.renderTable(this.fullData)
+      this.applyFilters()
 
       const message = this.fullData.length
         ? `Chargement complet : ${this.fullData.length} questions trouvées`
@@ -272,15 +457,25 @@ class TableManager {
         this.loadQuestions()
       )
     }
+
+    if (this.elements.resetFiltersBtn) {
+      this.elements.resetFiltersBtn.addEventListener('click', () =>
+        this.resetFilters()
+      )
+    }
   }
 
   // Initialisation
-  init () {
+  async init () {
     this.setupEventListeners()
+
+    // Charger les sujets et uses
+    await this.loadSubjects()
+    await this.loadUses()
 
     // Auto-chargement si configuré
     if (this.config.autoLoad) {
-      this.loadQuestions()
+      await this.loadQuestions()
     }
   }
 }
