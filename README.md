@@ -1,4 +1,4 @@
-miskatonic est une application web permettant de générer et de gérer des QCM (Questionnaires à Choix Multiples). Le backend est développé avec FastAPI pour sa rapidité et sa simplicité, 
+Miskatonic est une application web permettant de générer et de gérer des QCM (Questionnaires à Choix Multiples). Le backend est développé avec FastAPI pour sa rapidité et sa simplicité, 
 tandis que le frontend utilise Flask pour une interface utilisateur intuitive.
 
 Fonctionnalités:
