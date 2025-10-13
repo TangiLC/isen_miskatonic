@@ -8,12 +8,14 @@ export class QuestionnaireTableUtils {
     title,
     onClick,
     disabled = false,
+    detailClass = false,
     deleteClass = false
   }) {
     const btn = document.createElement('button')
     btn.type = 'button'
     btn.className = 'action-icon-btn'
     if (deleteClass) btn.className += ' delete'
+    if (detailClass) btn.className += ' detail-btn'
     btn.title = title
     btn.setAttribute('aria-label', title)
 
@@ -44,7 +46,8 @@ export class QuestionnaireTableUtils {
         src: '/static/assets/icon-q-up.svg',
         title: 'Monter la question',
         onClick: () => callbacks.onMove(index, -1),
-        disabled: index === 0
+        disabled: index === 0,
+        detailClass: true
       })
     )
 
@@ -53,7 +56,8 @@ export class QuestionnaireTableUtils {
         src: '/static/assets/icon-q-down.svg',
         title: 'Descendre la question',
         onClick: () => callbacks.onMove(index, 1),
-        disabled: index === totalQuestions - 1
+        disabled: index === totalQuestions - 1,
+        detailClass: true
       })
     )
 
@@ -62,7 +66,8 @@ export class QuestionnaireTableUtils {
         src: '/static/assets/icon-q-unselect.svg',
         title: 'Retirer la question',
         onClick: () => callbacks.onRemove(index, question.question),
-        deleteClass: true
+        deleteClass: true,
+        detailClass: true
       })
     )
 

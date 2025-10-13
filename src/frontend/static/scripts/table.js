@@ -4,10 +4,13 @@ class TableManager {
     this.elements = this.getElements()
     this.fullData = []
     this.userNameCache = new Map()
-    this.activeSubjects = new Set() // Sujets actifs pour le filtrage
-    this.allSubjects = [] // Liste de tous les sujets disponibles
-    this.activeUses = new Set() // Uses actifs pour le filtrage
-    this.allUses = [] // Liste de tous les uses disponibles
+
+    // Gestion générique des filtres
+    this.filters = {
+      subject: { active: new Set(), all: [] },
+      use: { active: new Set(), all: [] }
+    }
+
     this.init()
   }
 
@@ -175,176 +178,129 @@ class TableManager {
     return userName
   }
 
-  // === GESTION DES FILTRES SUBJECTS ===
+  // === GESTION GÉNÉRIQUE DES FILTRES ===
 
-  async loadSubjects () {
+  getFilterConfig (filterType) {
+    const configs = {
+      subject: {
+        endpoint: 'subjects',
+        container: this.elements.subjectFilters,
+        btnClass: 'subject-filter-btn',
+        dataAttr: 'subject'
+      },
+      use: {
+        endpoint: 'uses',
+        container: this.elements.useFilters,
+        btnClass: 'use-filter-btn',
+        dataAttr: 'use'
+      }
+    }
+    return configs[filterType]
+  }
+
+  async loadFilterOptions (filterType) {
+    const filterConfig = this.getFilterConfig(filterType)
+
     try {
-      const response = await fetch(`${this.config.apiUrl}/questions/subjects`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${this.config.token}`,
-          Accept: 'application/json'
+      const response = await fetch(
+        `${this.config.apiUrl}/questions/${filterConfig.endpoint}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${this.config.token}`,
+            Accept: 'application/json'
+          }
         }
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`Erreur HTTP ${response.status}`)
       }
 
-      this.allSubjects = await response.json()
+      const options = await response.json()
+      this.filters[filterType].all = options
+      this.filters[filterType].active = new Set(options)
 
-      // Tous les sujets sont actifs par défaut
-      this.activeSubjects = new Set(this.allSubjects)
-
-      this.renderSubjectFilters()
+      this.renderFilterButtons(filterType)
     } catch (error) {
-      console.error('Erreur lors du chargement des sujets:', error)
+      console.error(`Erreur lors du chargement des ${filterType}:`, error)
     }
   }
 
-  renderSubjectFilters () {
-    if (!this.elements.subjectFilters) return
+  renderFilterButtons (filterType) {
+    const filterConfig = this.getFilterConfig(filterType)
+    const container = filterConfig.container
 
-    this.elements.subjectFilters.innerHTML = ''
+    if (!container) return
 
-    this.allSubjects.forEach(subject => {
+    container.innerHTML = ''
+
+    this.filters[filterType].all.forEach(option => {
       const btn = document.createElement('button')
       btn.type = 'button'
-      btn.className = 'subject-filter-btn'
-      btn.textContent = subject
-      btn.dataset.subject = subject
+      btn.className = filterConfig.btnClass
+      btn.textContent = option
+      btn.dataset[filterConfig.dataAttr] = option
 
-      // État actif par défaut
-      if (!this.activeSubjects.has(subject)) {
+      if (!this.filters[filterType].active.has(option)) {
         btn.classList.add('inactive')
       }
 
-      btn.addEventListener('click', () => this.toggleSubjectFilter(subject))
-      this.elements.subjectFilters.appendChild(btn)
+      btn.addEventListener('click', () => this.toggleFilter(filterType, option))
+      container.appendChild(btn)
     })
   }
 
-  toggleSubjectFilter (subject) {
-    if (this.activeSubjects.has(subject)) {
-      this.activeSubjects.delete(subject)
+  toggleFilter (filterType, value) {
+    const filterData = this.filters[filterType]
+
+    if (filterData.active.has(value)) {
+      filterData.active.delete(value)
     } else {
-      this.activeSubjects.add(subject)
+      filterData.active.add(value)
     }
 
     // Mise à jour visuelle du bouton
-    const btn = this.elements.subjectFilters.querySelector(
-      `[data-subject="${subject}"]`
+    const filterConfig = this.getFilterConfig(filterType)
+    const btn = filterConfig.container?.querySelector(
+      `[data-${filterConfig.dataAttr}="${value}"]`
     )
+
     if (btn) {
       btn.classList.toggle('inactive')
     }
 
-    // Appliquer le filtre
     this.applyFilters()
   }
-
-  // === GESTION DES FILTRES USES ===
-
-  async loadUses () {
-    try {
-      const response = await fetch(`${this.config.apiUrl}/questions/uses`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${this.config.token}`,
-          Accept: 'application/json'
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP ${response.status}`)
-      }
-
-      this.allUses = await response.json()
-
-      // Tous les uses sont actifs par défaut
-      this.activeUses = new Set(this.allUses)
-
-      this.renderUseFilters()
-    } catch (error) {
-      console.error('Erreur lors du chargement des uses:', error)
-    }
-  }
-
-  renderUseFilters () {
-    if (!this.elements.useFilters) return
-
-    this.elements.useFilters.innerHTML = ''
-
-    this.allUses.forEach(use => {
-      const btn = document.createElement('button')
-      btn.type = 'button'
-      btn.className = 'use-filter-btn'
-      btn.textContent = use
-      btn.dataset.use = use
-
-      // État actif par défaut
-      if (!this.activeUses.has(use)) {
-        btn.classList.add('inactive')
-      }
-
-      btn.addEventListener('click', () => this.toggleUseFilter(use))
-      this.elements.useFilters.appendChild(btn)
-    })
-  }
-
-  toggleUseFilter (use) {
-    if (this.activeUses.has(use)) {
-      this.activeUses.delete(use)
-    } else {
-      this.activeUses.add(use)
-    }
-
-    // Mise à jour visuelle du bouton
-    const btn = this.elements.useFilters.querySelector(`[data-use="${use}"]`)
-    if (btn) {
-      btn.classList.toggle('inactive')
-    }
-
-    // Appliquer le filtre
-    this.applyFilters()
-  }
-
-  // === GESTION COMBINÉE DES FILTRES ===
 
   resetFilters () {
-    // Réactiver tous les sujets et uses
-    this.activeSubjects = new Set(this.allSubjects)
-    this.activeUses = new Set(this.allUses)
+    // Réactiver tous les filtres
+    Object.keys(this.filters).forEach(filterType => {
+      this.filters[filterType].active = new Set(this.filters[filterType].all)
+    })
 
     // Mise à jour visuelle
     this.$$('.subject-filter-btn, .use-filter-btn').forEach(btn => {
       btn.classList.remove('inactive')
     })
 
-    // Réafficher toutes les questions
     this.applyFilters()
   }
 
   applyFilters () {
-    // Filtrer les questions selon les sujets ET uses actifs
     const filteredData = this.fullData.filter(question => {
-      // Vérifier les sujets
-      const subjects = Array.isArray(question.subject)
-        ? question.subject
-        : [question.subject]
+      // Vérifier chaque type de filtre
+      return Object.keys(this.filters).every(filterType => {
+        const filterData = this.filters[filterType]
+        const questionValues = Array.isArray(question[filterType])
+          ? question[filterType]
+          : [question[filterType]]
 
-      const matchesSubject =
-        this.activeSubjects.size === 0 ||
-        subjects.some(s => this.activeSubjects.has(s))
-
-      // Vérifier les uses
-      const uses = Array.isArray(question.use) ? question.use : [question.use]
-
-      const matchesUse =
-        this.activeUses.size === 0 || uses.some(u => this.activeUses.has(u))
-
-      // La question doit correspondre aux deux critères
-      return matchesSubject && matchesUse
+        return (
+          filterData.active.size === 0 ||
+          questionValues.some(v => filterData.active.has(v))
+        )
+      })
     })
 
     this.renderTable(filteredData)
@@ -469,9 +425,11 @@ class TableManager {
   async init () {
     this.setupEventListeners()
 
-    // Charger les sujets et uses
-    await this.loadSubjects()
-    await this.loadUses()
+    // Charger tous les types de filtres
+    await Promise.all([
+      this.loadFilterOptions('subject'),
+      this.loadFilterOptions('use')
+    ])
 
     // Auto-chargement si configuré
     if (this.config.autoLoad) {

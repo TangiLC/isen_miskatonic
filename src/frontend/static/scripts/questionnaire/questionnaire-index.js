@@ -1,5 +1,5 @@
-// questionnaire/index.js - Point d'entrée principal pour la gestion des questionnaires
-import { QuestionnaireManager } from './questionnaire-manager.js'
+//import { QuestionnaireManager } from './questionnaire-manager.js'
+import { QuestionnaireManager } from './qr-manager.js'
 
 let questionnaireManagerInstance = null
 

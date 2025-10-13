@@ -367,6 +367,9 @@ p a:hover {
 .use-filter-btn {
 	height: 1.5rem;
 	font-size: 0.8rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	background-color: var(--c-gray-500);
 }
 .subject-filter-btn:hover,
@@ -495,7 +498,8 @@ p a:hover {
 	width: 14%;
 	text-wrap: wrap;
 }
-#questionsTable #use {
+#questionsTable #use,
+#questionnaireTable #actions {
 	width: 14%;
 }
 #questionsTable #author {
@@ -552,6 +556,11 @@ p a:hover {
 	background-color: #ccc;
 	color: var(--c-gray-500);
 }
+.action-icon-btn img {
+	filter: invert(1);
+	height: 1.4rem;
+}
+
 .action-icon-btn.delete {
 	background-color: var(--c-danger);
 	color: var(--c-danger-text);

@@ -3,7 +3,8 @@
     <div class="copy-button" title="copier l'id" data-qr-id="{{ questionnaire_id }}">
         <div id="QR-info">Questionnaire selectionné : {{questionnaire_id}} </div>
         <div>
-            <img src="{{ url_for('static', filename='assets/icon-check.svg') }}" alt="copier l'id">
+            <img src="{{ url_for('static', filename='assets/icon-check.svg') }}" alt="copier l'id"
+                style="filter: invert(1);">
         </div>
 
     </div>

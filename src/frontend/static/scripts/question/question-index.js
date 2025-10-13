@@ -1,4 +1,5 @@
-import { QuestionManager } from './question-manager.js'
+//import { QuestionManager } from './question-manager.js'
+import { QuestionManager } from './q-manager.js'
 
 let questionManagerInstance = null
 
