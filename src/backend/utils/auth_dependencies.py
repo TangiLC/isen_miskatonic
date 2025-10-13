@@ -11,13 +11,10 @@ async def get_current_user(
 ) -> User:
     """
     Vérifie le token JWT et retourne les informations utilisateur.
-
     Args:
         credentials: Credentials JWT du header Authorization
-
     Returns:
         Objet User
-
     Raises:
         HTTPException: Si le token est invalide
     """

@@ -277,3 +277,48 @@ async def get_questionnaires(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la récupération des questionnaires: {e}",
         )
+
+
+@router.delete(
+    "/api/questionnaires/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Supprimer un questionnaire",
+    description="Supprime un questionnaire existant. Seul le créateur peut le supprimer.",
+    responses={
+        204: {"description": "Questionnaire supprimé avec succès"},
+        400: {"description": "ID invalide"},
+        401: {"description": "Token d'authentification requis"},
+        403: {"description": "Accès refusé - seul le créateur peut supprimer"},
+        404: {"description": "Questionnaire introuvable"},
+        500: {"description": "Erreur interne du serveur"},
+    },
+    tags=["Questionnaires"],
+)
+async def delete_questionnaire(
+    id: str = Path(..., description="ID du questionnaire à supprimer"),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        user_id = current_user.id
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Token JWT invalide - ID utilisateur manquant",
+            )
+        if isinstance(user_id, str) and user_id.isdigit():
+            user_id = int(user_id)
+
+        # await questionnaire_service.delete_questionnaire(id, user_id)
+        return {"message": "service non disponible actuellement"}
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except LookupError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la suppression: {str(e)}",
+        )

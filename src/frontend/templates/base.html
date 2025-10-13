@@ -40,9 +40,9 @@
             <div class="nav-group">
                 <div class="nav-button active" onclick="alert('Gestion de votre profil dans la V2')">{{ user.name }}
                     <div class="profil">
-                        {% if user.role.name == "STUDENT" %}
+                        {% if user.role in ["student"] %}
                         <img src="{{ url_for('static', filename='assets/bart.png') }}" alt="Élève">
-                        {% elif user.role.name in ["TEACHER", "ADMIN"] %}
+                        {% elif user.role in ["teacher","admin"] %}
                         <img src="{{ url_for('static', filename='assets/krapabel.png') }}" alt="Professeur">
                         {% endif %}
                     </div>

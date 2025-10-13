@@ -3,35 +3,65 @@ from pydantic import BaseModel, EmailStr, Field
 from models.user import UserRole
 
 
-class UserCreate(BaseModel):
-    """
-    Payload de test pour /auth/testjwt/ (pas de BDD).
-    """
+class LoginRequest(BaseModel):
+    """Schéma pour la requête de connexion"""
 
-    id: Optional[int] = Field(None, description="Identifiant technique (optionnel)")
-    name: str = Field(..., description="Nom de l'utilisateur")
-    email: EmailStr = Field(..., description="Email de l'utilisateur")
-    role: Optional[UserRole] = Field(
-        UserRole.TEACHER, description="Rôle de l'utilisateur"
+    username: str = Field(..., description="Nom", examples=["bob"])
+    password: str = Field(..., description="Mot de passe", examples=["Pass123*"])
+
+
+class UserCreate(BaseModel):
+    """Schéma pour la création d'un utilisateur"""
+
+    id: Optional[int] = Field(
+        None, description="ID utilisateur (auto-généré si non fourni)"
+    )
+    name: str = Field(..., description="Nom 'utilisateur", examples=["Bob"])
+    email: EmailStr = Field(
+        ..., description="Adresse email", examples=["bob@example.com"]
+    )
+    password: str = Field(
+        ...,
+        description="Mot de passe (sera haché automatiquement)",
+        examples=["Pass123*"],
+    )
+    role: UserRole = Field(
+        default=UserRole.USER,
+        description="Rôle de l'utilisateur",
+        examples=["user"],
     )
 
 
 class UserResponse(BaseModel):
-    """
-    DTO exposé par l'API (sans password).
-    """
+    """Schéma pour la réponse utilisateur (sans mot de passe)"""
 
-    id: Optional[int] = None
-    name: str
-    email: EmailStr
-    role: UserRole
+    id: int = Field(..., description="ID unique de l'utilisateur")
+    name: str = Field(..., description="Nom complet de l'utilisateur")
+    email: EmailStr = Field(..., description="Adresse email")
+    role: UserRole = Field(..., description="Rôle de l'utilisateur")
 
 
 class TokenResponse(BaseModel):
-    """
-    Réponse d'un endpoint qui renvoie un JWT.
-    """
+    """Schéma pour la réponse contenant un token JWT"""
 
-    access_token: str
-    token_type: str = "bearer"
-    user: UserResponse
+    access_token: str = Field(
+        ...,
+        description="Token JWT pour l'authentification",
+        examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."],
+    )
+    token_type: str = Field(
+        default="bearer", description="Type de token", examples=["bearer"]
+    )
+    user: UserResponse = Field(..., description="Informations de l'utilisateur")
+
+
+class TokenValidationResponse(BaseModel):
+    """Schéma pour la validation d'un token"""
+
+    valid: bool = Field(..., description="Indique si le token est valide")
+    user: Optional[UserResponse] = Field(
+        None, description="Informations utilisateur si le token est valide"
+    )
+    message: Optional[str] = Field(
+        None, description="Message d'erreur si le token est invalide"
+    )

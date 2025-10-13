@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import session, redirect, url_for
-from services.services import Service
+from services.auth_service import AuthService
 
 
 def require_roles(*allowed_roles):
@@ -9,7 +9,7 @@ def require_roles(*allowed_roles):
         def wrapped(*args, **kwargs):
             if "token" not in session:
                 return redirect(url_for("login"))
-            utilisateur = Service.get_user_from_token(session["token"])
+            utilisateur = AuthService.decode_token(session["token"])
             if not utilisateur:
                 return redirect(url_for("login"))
             role = (
