@@ -1,0 +1,1028 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Questions Quiz API",
+        "description": "API pour la gestion des questions de quiz avec PyMongo",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "Système"
+                ],
+                "summary": "Point d'entrée de l'API",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Root  Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "tags": [
+                    "Système"
+                ],
+                "summary": "Vérification de l'état de santé",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Health Check Health Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/db-stats": {
+            "get": {
+                "tags": [
+                    "Système"
+                ],
+                "summary": "Statistiques de la base de données",
+                "description": "Retourne les statistiques détaillées de la base de données.",
+                "operationId": "get_db_stats_db_stats_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Get Db Stats Db Stats Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/question": {
+            "put": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Créer une nouvelle question",
+                "description": "Crée une nouvelle question à partir des données JSON fournies. Route sécurisée JWT.",
+                "operationId": "create_question_api_question_put",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Question créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "401": {
+                        "description": "Token d'authentification requis"
+                    },
+                    "409": {
+                        "description": "Conflit - Erreur lors de l'insertion"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/api/question/{id}": {
+            "get": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Récupérer une question par ID",
+                "description": "Retourne la question correspondant à l'id.\n    Les réponses correctes ne sont visibles que pour les rôles définis. Route sécurisée JWT.",
+                "operationId": "get_question_api_question__id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Identifiant MongoDB de la question",
+                            "title": "Id"
+                        },
+                        "description": "Identifiant MongoDB de la question"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID invalide"
+                    },
+                    "401": {
+                        "description": "Token d'authentification requis"
+                    },
+                    "404": {
+                        "description": "Question introuvable"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Mettre à jour une question",
+                "description": "Met à jour une question existante. Seul le créateur peut modifier sa question.",
+                "operationId": "update_question_api_question__id__patch",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "ID de la question à modifier",
+                            "title": "Id"
+                        },
+                        "description": "ID de la question à modifier"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestionUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Question mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID invalide ou données invalides"
+                    },
+                    "401": {
+                        "description": "Token d'authentification requis"
+                    },
+                    "403": {
+                        "description": "Accès refusé - seul le créateur peut modifier"
+                    },
+                    "404": {
+                        "description": "Question introuvable"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                }
+            }
+        },
+        "/api/questions": {
+            "get": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Lister toutes les questions",
+                "description": "Retourne l'ensemble des questions stockées en base. \n    Les réponses correctes ne sont visibles que pour les rôles définis. Route sécurisée JWT.",
+                "operationId": "get_questions_api_questions_get",
+                "responses": {
+                    "200": {
+                        "description": "Liste renvoyée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuestionResponse"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Questions Api Questions Get"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token d'authentification requis"
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/api/questions/subjects": {
+            "get": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Lister les sujets",
+                "description": "Retourne la liste distincte des sujets présents dans les questions.",
+                "operationId": "get_subjects_api_subjects_get",
+                "responses": {
+                    "200": {
+                        "description": "Liste des sujets renvoyée avec succès.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Subjects Api Subjects Get"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                }
+            }
+        },
+        "/api/question/import-csv": {
+            "put": {
+                "tags": [
+                    "Questions",
+                    "Questions"
+                ],
+                "summary": "Importer des questions depuis un fichier CSV",
+                "description": "Importe des questions en masse depuis un fichier CSV.\n    Le CSV doit contenir les colonnes: question, subject, use, correct, responseA, responseB, responseC, responseD, remark.\n    Fusionne automatiquement les questions identiques et corrige les sujets similaires.\n    Route sécurisée JWT - seuls TEACHER et ADMIN peuvent importer.",
+                "operationId": "import_csv_api_question_import_csv_put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "fix_subjects",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "Fix Subjects"
+                        }
+                    },
+                    {
+                        "name": "subject_threshold",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "default": 0.9,
+                            "title": "Subject Threshold"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_import_csv_api_question_import_csv_put"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Import réussi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CSVImportResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Fichier CSV invalide ou données incorrectes"
+                    },
+                    "401": {
+                        "description": "Token d'authentification requis"
+                    },
+                    "403": {
+                        "description": "Accès refusé - rôle insuffisant"
+                    },
+                    "413": {
+                        "description": "Fichier trop volumineux"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                }
+            }
+        },
+        "/auth/testjwt/": {
+            "post": {
+                "tags": [
+                    "Auth",
+                    "Auth"
+                ],
+                "summary": "Générer un JWT de test  /!\\ Mode Dev Test uniquement /!\\ ",
+                "description": "Génère un token JWT sans accès BDD, à partir d'un body JSON {id, name, email, role}.",
+                "operationId": "create_test_jwt_auth_testjwt__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Succès authentification, retour token JWT.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation des données"
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur"
+                    }
+                }
+            }
+        },
+        "/auth/whoami/": {
+            "get": {
+                "tags": [
+                    "Auth",
+                    "Auth"
+                ],
+                "summary": "Vérifier du user depuis son token JWT",
+                "description": "Vérifie la validité du JWT (Authorization: Bearer) et retourne les informations utilisateur.",
+                "operationId": "whoami_auth_whoami__get",
+                "responses": {
+                    "200": {
+                        "description": "Token valide",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token invalide, expiré ou manquant"
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_import_csv_api_question_import_csv_put": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File",
+                        "description": "Fichier CSV à importer (max 10MB)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_import_csv_api_question_import_csv_put"
+            },
+            "CSVImportResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "imported": {
+                        "type": "integer",
+                        "title": "Imported"
+                    },
+                    "errors": {
+                        "type": "integer",
+                        "title": "Errors"
+                    },
+                    "merged": {
+                        "type": "integer",
+                        "title": "Merged"
+                    },
+                    "error_details": {
+                        "items": {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Error Details"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "imported",
+                    "errors",
+                    "merged",
+                    "error_details",
+                    "message"
+                ],
+                "title": "CSVImportResponse",
+                "description": "Réponse de l'import CSV"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "QuestionCreate": {
+                "properties": {
+                    "question": {
+                        "type": "string",
+                        "title": "Question",
+                        "description": "Intitulé de la question."
+                    },
+                    "subject": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Subject",
+                        "description": "sujets de la question (tags)."
+                    },
+                    "use": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Use",
+                        "description": "contextes d'utilisation"
+                    },
+                    "corrects": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Corrects",
+                        "description": "Liste des réponses correctes."
+                    },
+                    "responses": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Responses",
+                        "description": "Liste des propositions de réponse."
+                    },
+                    "remark": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Remark",
+                        "description": "Remarque ou commentaire."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "question",
+                    "subject",
+                    "use",
+                    "corrects",
+                    "responses"
+                ],
+                "title": "QuestionCreate",
+                "description": "Schéma d'entrée pour la création d'une question."
+            },
+            "QuestionResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id",
+                        "description": "Identifiant MongoDB généré automatiquement."
+                    },
+                    "question": {
+                        "type": "string",
+                        "title": "Question",
+                        "description": "Intitulé de la question."
+                    },
+                    "subject": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Subject",
+                        "description": "sujets de la question (tags)."
+                    },
+                    "use": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Use",
+                        "description": "contextes d'utilisation"
+                    },
+                    "corrects": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Corrects",
+                        "description": "Liste des réponses correctes."
+                    },
+                    "responses": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Responses",
+                        "description": "Liste des propositions de réponse."
+                    },
+                    "remark": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Remark",
+                        "description": "Remarque ou commentaire."
+                    },
+                    "created_by": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created By",
+                        "description": "Identifiant du créateur."
+                    },
+                    "created_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created At",
+                        "description": "Date de création"
+                    },
+                    "edited_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Edited At",
+                        "description": "Date de modification"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "question",
+                    "subject",
+                    "use",
+                    "corrects",
+                    "responses"
+                ],
+                "title": "QuestionResponse",
+                "description": "Schéma de sortie renvoyé par l'API pour une question."
+            },
+            "QuestionUpdate": {
+                "properties": {
+                    "question": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Question",
+                        "description": "Intitulé de la question."
+                    },
+                    "subject": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Subject",
+                        "description": "sujets de la question (tags)."
+                    },
+                    "use": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Use",
+                        "description": "contextes d'utilisation"
+                    },
+                    "corrects": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Corrects",
+                        "description": "Liste des réponses correctes."
+                    },
+                    "responses": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Responses",
+                        "description": "Liste des propositions de réponse."
+                    },
+                    "remark": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Remark",
+                        "description": "Remarque ou commentaire."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "subject",
+                    "use",
+                    "corrects",
+                    "responses"
+                ],
+                "title": "QuestionUpdate",
+                "description": "Schéma d'entrée pour la mise à jour partielle d'une question.\nTous les champs sont optionnels."
+            },
+            "TokenResponse": {
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "title": "Access Token"
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "title": "Token Type",
+                        "default": "bearer"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResponse"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "access_token",
+                    "user"
+                ],
+                "title": "TokenResponse",
+                "description": "Réponse d'un endpoint qui renvoie un JWT."
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole",
+                        "default": "teacher"
+                    },
+                    "password": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Password"
+                    },
+                    "isAuth": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Isauth",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "title": "User",
+                "description": "Modèle interne d'utilisateur (côté service/domaine).\nPas de persistance pour le moment."
+            },
+            "UserCreate": {
+                "properties": {
+                    "id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id",
+                        "description": "Identifiant technique (optionnel)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Nom de l'utilisateur"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email",
+                        "description": "Email de l'utilisateur"
+                    },
+                    "role": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/UserRole"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Rôle de l'utilisateur",
+                        "default": "teacher"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "title": "UserCreate",
+                "description": "Payload de test pour /auth/testjwt/ (pas de BDD)."
+            },
+            "UserResponse": {
+                "properties": {
+                    "id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "email",
+                    "role"
+                ],
+                "title": "UserResponse",
+                "description": "DTO exposé par l'API (sans password)."
+            },
+            "UserRole": {
+                "type": "string",
+                "enum": [
+                    "admin",
+                    "teacher",
+                    "student",
+                    "user"
+                ],
+                "title": "UserRole",
+                "description": "Énumération des rôles utilisateur"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        },
+        "securitySchemes": {
+            "HTTPBearer": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    }
+}
