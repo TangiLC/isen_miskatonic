@@ -13,6 +13,8 @@ class QuestionStatus(str, Enum):
 
 
 class Question(BaseModel):
+    """Modèle d'une question"""
+
     id: Optional[str] = None
     question: str
     subject: List[str] = []

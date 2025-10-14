@@ -32,7 +32,7 @@ class Database:
         cls._mongo_password = os.getenv("MONGO_PASSWORD")
         cls._mongo_host = os.getenv("MONGO_HOST", "localhost")
         cls._mongo_port = os.getenv("MONGO_PORT", "27018")
-        cls._db_name = os.getenv("DB_NAME", "miska")
+        cls._db_name = os.getenv("DB_NAME", "miskatonic")
         cls._collection_name = os.getenv("COLLECTION_NAME", "questions")
 
         # if cls._mongo_username and cls._mongo_password:

@@ -1,0 +1,78 @@
+{
+    "template_question": {
+        "_id": {
+            "$oid": "68eeb83e3a2e3b3950949ae0"
+        },
+        "question": "Exemple de question à 4 propositions dont 2 correctes",
+        "subject": [
+            "Exemple"
+        ],
+        "use": [
+            "Exemple"
+        ],
+        "corrects": [
+            "Vrai",
+            "C'est pas faux"
+        ],
+        "responses": [
+            "Faux",
+            "Incorrect",
+            "Vrai",
+            "C'est pas faux"
+        ],
+        "remark": "exemple de remarque",
+        "status": "active",
+        "created_by": 1,
+        "created_at": {
+            "$date": "2025-10-14T20:53:18.000Z"
+        },
+        "edited_at": null
+    },
+    "template_questionnaire": {
+        "_id": {
+            "$oid": "68dd8e06b1b2f5b1d59da848"
+        },
+        "title": "Q Test 2",
+        "questions": [
+            {
+                "id": "68cbbccad2328ce8515cf3a2",
+                "question": "Que signifie le sigle No-SQL ?"
+            },
+            {
+                "id": "68cbbccad2328ce8515cf3a3",
+                "question": "Cassandra et HBase sont des bases de données"
+            },
+            {
+                "id": "68cbbccad2328ce8515cf3a5",
+                "question": "OrientDB et Neo4J sont des bases de données"
+            },
+            {
+                "id": "68cbbccad2328ce8515cf3a4",
+                "question": "MongoDB et CouchDB sont des bases de données"
+            },
+            {
+                "id": "68cbbccad2328ce8515cf3a6",
+                "question": "Pour indexer des données textuelles, je peux utiliser"
+            },
+            {
+                "id": "68cbbccad2328ce8515cf3a7",
+                "question": "A quoi faire attention lorsqu'on choisit un système de base de données ?"
+            }
+        ],
+        "remark": "",
+        "status": "active",
+        "created_by": 3,
+        "created_at": {
+            "$date": "2025-10-01T01:00:00.000Z"
+        },
+        "subjects": [
+            "BDD"
+        ],
+        "uses": [
+            "Test de positionnement"
+        ],
+        "edited_at": {
+            "$date": "2025-10-13T22:15:41.000Z"
+        }
+    }
+}
