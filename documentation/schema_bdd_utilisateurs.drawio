@@ -1,0 +1,60 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0" version="28.2.3">
+  <diagram name="Page-1" id="ypEckJAm-0IAHakVP618">
+    <mxGraphModel dx="2066" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="39ft0bdBzwlfVtkynzL--53" value="Modèle Physique de Données (MPD)" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="20" y="110" width="768" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--54" value="**CREATE TABLE Roles**&#xa;id INTEGER&#xa;PRIMARY KEY AUTOINCREMENT&#xa;role TEXT NOT NULL UNIQUE" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--53">
+          <mxGeometry x="479" y="103" width="260" height="174" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--55" value="**CREATE TABLE Users**&#xa;id INTEGER&#xa;PRIMARY KEY AUTOINCREMENT&#xa;name TEXT NOT NULL&#xa;email TEXT NOT NULL UNIQUE&#xa;password TEXT NOT NULL&#xa;role_id INTEGER NOT NULL&#xa;FOREIGN KEY role_id&#xa;REFERENCES Roles id" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--53">
+          <mxGeometry x="46" y="43" width="260" height="294" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--56" value="FOREIGN KEY" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;" edge="1" parent="39ft0bdBzwlfVtkynzL--53" source="39ft0bdBzwlfVtkynzL--55" target="39ft0bdBzwlfVtkynzL--54">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--57" value="Modèle Logique de Données (MLD)" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="67.5" y="500" width="673" height="316" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--58" value="**Roles**&#xa;---&#xa;_id_: INTEGER PK&#xa;role: TEXT&#xa;UNIQUE NOT NULL" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--57">
+          <mxGeometry x="452" y="91" width="192" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--59" value="**Users**&#xa;---&#xa;_id_: INTEGER PK&#xa;name: TEXT NOT NULL&#xa;email: TEXT&#xa;UNIQUE NOT NULL&#xa;password: TEXT NOT NULL&#xa;*role_id*: INTEGER FK&#xa;NOT NULL" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--57">
+          <mxGeometry x="46" y="43" width="249" height="246" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--60" value="FK: role_id" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;" edge="1" parent="39ft0bdBzwlfVtkynzL--57" source="39ft0bdBzwlfVtkynzL--59" target="39ft0bdBzwlfVtkynzL--58">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--61" value="Modèle Conceptuel de Données (MCD)" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="33" y="850" width="742" height="244" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--62" value="**ROLE**&#xa;---&#xa;#id: INTEGER&#xa;role: TEXT" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--61">
+          <mxGeometry x="559" y="67" width="154" height="126" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--63" value="**USER**&#xa;---&#xa;#id: INTEGER&#xa;name: TEXT&#xa;email: TEXT&#xa;password: TEXT" style="whiteSpace=wrap;strokeWidth=2;" vertex="1" parent="39ft0bdBzwlfVtkynzL--61">
+          <mxGeometry x="46" y="43" width="173" height="174" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--64" value="" style="rhombus;strokeWidth=2;whiteSpace=wrap;" vertex="1" parent="39ft0bdBzwlfVtkynzL--61">
+          <mxGeometry x="354" y="115" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--65" value="possède&#xa;1,1" style="curved=1;startArrow=none;endArrow=block;exitX=0.99;exitY=0.5;entryX=0;entryY=0.5;rounded=0;" edge="1" parent="39ft0bdBzwlfVtkynzL--61" source="39ft0bdBzwlfVtkynzL--63" target="39ft0bdBzwlfVtkynzL--64">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39ft0bdBzwlfVtkynzL--66" value="est défini par&#xa;1,N" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;rounded=0;" edge="1" parent="39ft0bdBzwlfVtkynzL--61" source="39ft0bdBzwlfVtkynzL--64" target="39ft0bdBzwlfVtkynzL--62">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
