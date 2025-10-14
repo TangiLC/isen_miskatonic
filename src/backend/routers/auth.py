@@ -160,7 +160,7 @@ async def get_current_user_info(
 
 
 @router.post(
-    "/api/auth/validate-token",
+    "/api/auth/token",
     response_model=TokenValidationResponse,
     status_code=status.HTTP_200_OK,
     summary="Valider un token JWT",

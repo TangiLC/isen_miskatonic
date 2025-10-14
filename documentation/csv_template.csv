@@ -1,0 +1,10 @@
+question,subject,use,correct,responseA,responseB,responseC,responseD,remark
+Exemple de question vrai/faux,Exemple,Exemple,A,Vrai,Faux,,,C'est pas faux
+Exemple de question à 4 propositions,Example,Example,D,la réponse A,la réponse B,la réponse C,la réponse D,
+Exemple de question à 4 propositions dont 2 correctes,Example,Example,"C D",Faux,Incorrect,Vrai,C'est pas faux,
+Exemple de question à 7 réponses (fusion),Example,Example,"C, D",random reponse,autre réponse,vrai,la réponse D,
+Exemple de question à 7 réponses (fusion),Example,Example,"A B",réponse vraie,autre réponse vraie,faux,,
+Question brouillon sans réponse correcte,Example,Example,,ceci,cela,autre,
+une autre question test avec ponctuation,Example,Example,D,random reponse,autre réponse,vrai,la réponse D,
+une autre question test avec ponctuation?,Example,Example,D,random reponse,autre réponse,vrai,la réponse D,
+
